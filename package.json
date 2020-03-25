@@ -1,5 +1,5 @@
 {
-  "name": "web-page-notify-client-downloader",
+  "name": "extract-mkv-subtitle-api",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/achimid/web-page-notify-client-downloader.git"
+    "url": "git+https://github.com/achimid/extract-mkv-subtitle-api.git"
   },
   "author": "achimid",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/achimid/web-page-notify-client-downloader/issues"
+    "url": "https://github.com/achimid/extract-mkv-subtitle-api/issues"
   },
-  "homepage": "https://github.com/achimid/web-page-notify-client-downloader#readme",
+  "homepage": "https://github.com/achimid/extract-mkv-subtitle-api#readme",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
