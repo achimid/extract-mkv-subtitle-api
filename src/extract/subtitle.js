@@ -2,7 +2,9 @@ const fs = require('fs')
 const path = require('path');
 const translate = require('google-translate-open-api')
 const utils = require('./utils')
+var os = require('os')
 
+const LINE_SEPARATOR = os.EOL
 const SCRIPT_PATH = `${process.cwd()}/scripts`
 const SUBTITLE_PART = 9
 
@@ -89,7 +91,7 @@ const readSubtitleFile = (inputFile) => {
     console.info('Lendo arquivo de legenda...')
 
     const fileContent = fs.readFileSync(inputFile, 'utf8')
-    const lines = fileContent.split('\n')
+    const lines = fileContent.split(LINE_SEPARATOR)
     return lines
 }
 
@@ -112,7 +114,7 @@ const translateDialogue = async (dialogues, {from, to}) => {
 }
 
 const writeSubtitleFile = (lines, outputFile) => {
-    fs.writeFileSync(outputFile, lines.join('\n'))    
+    fs.writeFileSync(outputFile, lines.join(LINE_SEPARATOR))    
 }
 
 const getEditedFileContent = (lines, dialoguesMap) => {
@@ -127,24 +129,57 @@ const getEditedFileContent = (lines, dialoguesMap) => {
     })
 }
 
-const translateFile = async (inputFile, outputFile, languages) => {
+// const translateFile = async (inputFile, outputFile, languages) => {
 
-    console.info('Começando Tradução da legenda...')
+//     console.info('Começando Tradução da legenda...')
 
-    const lines = readSubtitleFile(inputFile)
-    const {dialoguesLines, dialogues} = getSSADialogues(lines)
-    const translations = await translateDialogue(dialogues, languages)
+//     const lines = readSubtitleFile(inputFile)
+//     const {dialoguesLines, dialogues} = getSSADialogues(lines)
+//     const translations = await translateDialogue(dialogues, languages)
     
-    const dialoguesMap = dialogues.map((original, index) => {
-        const translated = translations[index]
-        const line = dialoguesLines[index]
-        return {line, original, translated}
+//     const dialoguesMap = dialogues.map((original, index) => {
+//         const translated = translations[index]
+//         const line = dialoguesLines[index]
+//         return {line, original, translated}
+//     })
+
+//     const editedLines = getEditedFileContent(lines, dialoguesMap)    
+
+//     writeSubtitleFile(editedLines, outputFile)
+
+// }
+
+const translateSubtitle = async (data) => {
+    console.info('Começando Tradução das legendas...')
+
+    if (!data.extraction.langTo) return Promise.resolve(data)
+
+    const languages = {
+        from: data.extraction.langFrom, 
+        to: data.extraction.langTo
+    }
+
+    const translationsPs = data.extraction.subtitles.map(async (sub) => {
+        const {fileContent} = sub
+        const lines = fileContent.split(LINE_SEPARATOR)
+        const {dialoguesLines, dialogues} = getSSADialogues(lines)
+        const translations = await translateDialogue(dialogues, languages)
+        
+        const dialoguesMap = dialogues.map((original, index) => {
+            const translated = translations[index]
+            const line = dialoguesLines[index]
+            return {line, original, translated}
+        })
+
+        const editedFileContent = getEditedFileContent(lines, dialoguesMap).join(LINE_SEPARATOR)
+        
+        return Object.assign(sub, { fileContentTranslated: editedFileContent})
     })
 
-    const editedLines = getEditedFileContent(lines, dialoguesMap)    
+    const subtitles = await Promise.all(translationsPs)
+    data.extraction.subtitles = subtitles
 
-    writeSubtitleFile(editedLines, outputFile)
-
+    return Promise.resolve(data)
 }
 
 // const path = '/home/lourran/Downloads/tmp'
@@ -158,7 +193,7 @@ const translateFile = async (inputFile, outputFile, languages) => {
 // translateFile('str.str', 'str-br.str')
 
 module.exports = {
-    translateFile,
+    translateSubtitle,
     extractSubtitles,
     joinSubtitle,
     getSubtitlesFiles

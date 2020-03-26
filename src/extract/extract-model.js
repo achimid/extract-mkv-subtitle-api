@@ -13,6 +13,7 @@ const schema = mongoose.Schema({
         infoHash: { type: String },
         magnetURI: { type: String },
         fileContent: { type: String },
+        fileContentTranslated: { type: String },
     }]
 }, { versionKey: false, timestamps: true})
 

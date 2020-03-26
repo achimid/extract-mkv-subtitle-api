@@ -3,13 +3,13 @@ require('dotenv').config()
 const mv = require('mv');
 const rimraf = require("rimraf");
 const WebTorrent = require('webtorrent')
-const client = new WebTorrent()
+const client = new WebTorrent({ maxConns: 200 })
 const utils = require('./utils')
 
 const startDownload = (data) => new Promise((resolve) => {
     if (!data.extraction.magnetLink) return
-        
-    client.add(data.extraction.magnetLink, (torrent) => {
+    
+    client.add(data.extraction.magnetLink, { maxWebConns: 20 }, (torrent) => {
         const obj = Object.assign({ client, torrent, pathNew: process.env.DOWNLOAD_FOLDER }, data )
         startProgressLog(obj)
             .then(onStartDownload)
