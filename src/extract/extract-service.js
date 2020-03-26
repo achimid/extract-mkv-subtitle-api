@@ -18,7 +18,10 @@ const saveExtraction = async (data) => {
     return Object.assign(data, { extraction })
 }
 
+const findById = (id) => Extraction.findById(id)
+
 module.exports = {
     startExtraction,
-    saveExtraction
+    saveExtraction,
+    findById
 }

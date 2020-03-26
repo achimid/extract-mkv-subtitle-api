@@ -13,4 +13,10 @@ router.post('/', async (req, res) => {
 
 })
 
+router.get('/:id', async (req, res) => {
+    service.findById(req.params.id)
+        .then((data) => res.json(data))
+        .catch(console.error)
+})
+
 module.exports = router
