@@ -6,7 +6,14 @@ const schema = mongoose.Schema({
         required: true
     },
     langTo: { type: String },
-    langFrom: { type: String }
+    langFrom: { type: String },
+    subtitles: [{
+        fileName: { type: String }, 
+        filePath: { type: String },
+        infoHash: { type: String },
+        magnetURI: { type: String },
+        fileContent: { type: String },
+    }]
 }, { versionKey: false, timestamps: true})
 
 const Extraction = mongoose.model("extractions", schema)

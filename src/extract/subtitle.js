@@ -73,7 +73,7 @@ const getSubtitlesFiles = (data) => new Promise((resolve) => {
                 fileContent: fs.readFileSync(fObj.filePath, 'utf8')
             }))
 
-        Object.assign(data, { subtitles })
+        data.extraction.subtitles = subtitles
         resolve(data)
     })
 })

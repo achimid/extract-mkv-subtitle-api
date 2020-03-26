@@ -5,10 +5,10 @@ router.post('/', async (req, res) => {
     const { magnetLink } = req.body
     const { langTo, langFrom } = req.query
 
-    const data = {magnetLink, langTo, langFrom}
+    const extraction = {magnetLink, langTo, langFrom}
 
-    service.saveExtraction(data)
-        .then((data) => { res.json(data); return data; })        
+    service.saveExtraction({ extraction })
+        .then((data) => { res.json(data.extraction); return data;})
         .then((data) => service.startExtraction(data))        
 
 })

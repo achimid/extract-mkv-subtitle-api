@@ -7,9 +7,9 @@ const client = new WebTorrent()
 const utils = require('./utils')
 
 const startDownload = (data) => new Promise((resolve) => {
-    if (!data.magnetLink) return
+    if (!data.extraction.magnetLink) return
         
-    client.add(data.magnetLink, (torrent) => {
+    client.add(data.extraction.magnetLink, (torrent) => {
         const obj = Object.assign({ client, torrent, pathNew: process.env.DOWNLOAD_FOLDER }, data )
         startProgressLog(obj)
             .then(onStartDownload)
@@ -17,64 +17,63 @@ const startDownload = (data) => new Promise((resolve) => {
             .then(onFinishDownload)
             .then(stopProgressLog)
             .then(resolve)
-            .catch((err) => console.error('Erro ao efetuar download', err))
     })
 })
 
-const moveFileFromFileSystem = (wrapObj) => new Promise((resolve, reject) => {
+const moveFileFromFileSystem = (data) => new Promise((resolve, reject) => {
     console.info('Movendo arquivos...')
-    const source = wrapObj.torrent.path + '/' + wrapObj.torrent.name
-    const dest = wrapObj.pathNew + wrapObj.torrent.name
-    mv(source, dest, (err) => err ?  reject(err) : resolve(Object.assign(wrapObj, {dest})))
+    const source = data.torrent.path + '/' + data.torrent.name
+    const dest = data.pathNew + data.torrent.name
+    mv(source, dest, (err) => err ?  reject(err) : resolve(Object.assign(data, {dest})))
 })
 
-const removeTorrentFromClient = (wrapObj) => new Promise((resolve, reject) => {
+const removeTorrentFromClient = (data) => new Promise((resolve, reject) => {
     console.info('Removendo torrent do downloader...')
-    wrapObj.client.remove(wrapObj.torrent.infoHash, (err) => err ?  reject(err) : resolve(wrapObj))
+    data.client.remove(data.torrent.infoHash, (err) => err ?  reject(err) : resolve(data))
 })
 
-const removeFileFromFileSystem = (wrapObj) => new Promise((resolve, reject) => {
+const removeFileFromFileSystem = (data) => new Promise((resolve, reject) => {
     console.info('Removendo arquivos...')
-    rimraf(wrapObj.torrent.path, (err) => err ?  reject(err) : resolve(wrapObj))
+    rimraf(data.torrent.path, (err) => err ?  reject(err) : resolve(data))
 })
 
-const whenTorrentDone = (wrapObj) => new Promise((resolve, reject) => {
-    wrapObj.torrent.on('done', () => {
+const whenTorrentDone = (data) => new Promise((resolve, reject) => {
+    data.torrent.on('done', () => {
         console.info('Download do torrent finalizado...')
-        resolve(wrapObj)
+        resolve(data)
     })
 })
 
-const startProgressLog = async (wrapObj) => {
-    wrapObj.progressLog = setInterval(() => console.log(`Progresso [${(wrapObj.torrent.progress * 100).toFixed(0)}%] [${utils.bytesToSize(wrapObj.torrent.downloadSpeed)}/s] [${utils.bytesToSize(wrapObj.torrent.uploadSpeed)}/s]`), 3000)
-    wrapObj.startTime = Date.now()
-    return Promise.resolve(wrapObj)
+const startProgressLog = async (data) => {
+    data.progressLog = setInterval(() => console.log(`Progresso [${(data.torrent.progress * 100).toFixed(0)}%] [${utils.bytesToSize(data.torrent.downloadSpeed)}/s] [${utils.bytesToSize(data.torrent.uploadSpeed)}/s]`), 3000)
+    data.startTime = Date.now()
+    return Promise.resolve(data)
 }
 
-const onStartDownload = async (wrapObj) => {
-    wrapObj.torrent.files.map((file) => {
+const onStartDownload = async (data) => {
+    data.torrent.files.map((file) => {
         console.info('Iniciando download:', file.path)        
         notifyEvent({ title: 'Iniciando download', message: file.path })
     })
-    return Promise.resolve(wrapObj)
+    return Promise.resolve(data)
 }
 
-const onFinishDownload = async (wrapObj) => {
-    wrapObj.torrent.files.map((file) => {
+const onFinishDownload = async (data) => {
+    data.torrent.files.map((file) => {
         console.info('Download concluido:', file.path)
-        console.info(`Download time: ${utils.msToFormatedTime(Date.now() - wrapObj.startTime)}s`)
+        console.info(`Download time: ${utils.msToFormatedTime(Date.now() - data.startTime)}s`)
         notifyEvent({ title: 'Download concluido', message: file.path })
     })
 
-    Object.assign(wrapObj, { file: `${wrapObj.torrent.path}/${wrapObj.torrent.name}`})
+    Object.assign(data, { file: `${data.torrent.path}/${data.torrent.name}`})
 
-    return Promise.resolve(wrapObj)
+    return Promise.resolve(data)
 }
 
-const stopProgressLog = async (wrapObj) => {
-    clearInterval(wrapObj.progressLog);
-    delete wrapObj.progressLog
-    return Promise.resolve(wrapObj)
+const stopProgressLog = async (data) => {
+    clearInterval(data.progressLog);
+    delete data.progressLog
+    return Promise.resolve(data)
 }
 
 const notifyEvent = ({title, message}) => {
