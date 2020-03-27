@@ -19,7 +19,13 @@ const REGEX_REMOVE = [
 ]
 
 const fixPontuation = (str) => {
-    return str.replace(/[&\/\\#,+()$~%.'":*?!<>{}]/g, '$& ').replace(/(\.\s){3}/g, '... ').replace(/\?\s\!\s/g, '?! ').replace(/\!\s\?\s/g, '!? ').replace(/\s{2}/g, ' ').replace(/\s+(?=[^{]*\})/g, "").trim()
+    return str.replace(/[&\/\\#,+()$~%.'":*?!<>{}]/g, '$& ')
+        .replace(/(\.\s){3}/g, '... ')
+        .replace(/\?\s\!\s/g, '?! ')
+        .replace(/\!\s\?\s/g, '!? ')
+        .replace(/\s{2}/g, ' ')
+        .replace(/\s+(?=[^{]*\})/g, "")
+        .trim()
 }
 
 const replaceEspecialChars = (d) => {
@@ -58,6 +64,8 @@ const extractSubtitles = async (data) => {
 }
 
 const getSubtitlesFiles = (data) => new Promise((resolve) => {
+    console.info('Obtendo leganda dos arquivos de leganda...')
+
     fs.readdir(data.torrent.path, function (err, files) {
         if (err) return console.log('Unable to scan directory: ' + err)
         
@@ -87,15 +95,9 @@ const joinSubtitle = async (data) => {
     return Promise.resolve(data)
 }
 
-const readSubtitleFile = (inputFile) => {
-    console.info('Lendo arquivo de legenda...')
-
-    const fileContent = fs.readFileSync(inputFile, 'utf8')
-    const lines = fileContent.split(LINE_SEPARATOR)
-    return lines
-}
-
 const getSSADialogues = (lines) => {
+
+    console.info('Extraindo dialogos do arquivo formadato...')
     
     const dialoguesLines = lines.filter(l => l.indexOf('Dialogue') == 0)
     const dialogues = dialoguesLines.map(getLastPart).map(replaceEspecialChars)
@@ -104,6 +106,9 @@ const getSSADialogues = (lines) => {
 }
 
 const translateDialogue = async (dialogues, {from, to}) => {
+
+    console.info('Efetuando tradução dos dialogos (google-API) ...')
+
     const options = {tld: "cn", from, to}
     const translationResponse = await translate.default(dialogues, options)
     const content = translationResponse.data[0]
@@ -118,6 +123,8 @@ const writeSubtitleFile = (lines, outputFile) => {
 }
 
 const getEditedFileContent = (lines, dialoguesMap) => {
+    console.info('Efetuando edição do arquivo original de legandas...')
+
     return lines.map(line => {
         const finded = dialoguesMap.filter(m => m.line === line)
         const hasLineTranslated = finded.length > 0
@@ -129,25 +136,6 @@ const getEditedFileContent = (lines, dialoguesMap) => {
     })
 }
 
-// const translateFile = async (inputFile, outputFile, languages) => {
-
-//     console.info('Começando Tradução da legenda...')
-
-//     const lines = readSubtitleFile(inputFile)
-//     const {dialoguesLines, dialogues} = getSSADialogues(lines)
-//     const translations = await translateDialogue(dialogues, languages)
-    
-//     const dialoguesMap = dialogues.map((original, index) => {
-//         const translated = translations[index]
-//         const line = dialoguesLines[index]
-//         return {line, original, translated}
-//     })
-
-//     const editedLines = getEditedFileContent(lines, dialoguesMap)    
-
-//     writeSubtitleFile(editedLines, outputFile)
-
-// }
 
 const translateSubtitle = async (data) => {
     console.info('Começando Tradução das legendas...')
@@ -173,14 +161,54 @@ const translateSubtitle = async (data) => {
 
         const editedFileContent = getEditedFileContent(lines, dialoguesMap).join(LINE_SEPARATOR)
         
-        return Object.assign(sub, { fileContentTranslated: editedFileContent})
+        return Object.assign(sub, { fileContentTranslated: editedFileContent, dialoguesMap})
     })
 
     const subtitles = await Promise.all(translationsPs)
     data.extraction.subtitles = subtitles
 
+    console.info('Terminando tradução das legendas...')
+
     return Promise.resolve(data)
 }
+
+module.exports = {
+    translateSubtitle,
+    extractSubtitles,
+    joinSubtitle,
+    getSubtitlesFiles
+}
+
+
+// const translateFile = async (inputFile, outputFile, languages) => {
+
+//     console.info('Começando Tradução da legenda...')
+
+//     const lines = readSubtitleFile(inputFile)
+//     const {dialoguesLines, dialogues} = getSSADialogues(lines)
+//     const translations = await translateDialogue(dialogues, languages)
+    
+//     const dialoguesMap = dialogues.map((original, index) => {
+//         const translated = translations[index]
+//         const line = dialoguesLines[index]
+//         return {line, original, translated}
+//     })
+
+//     const editedLines = getEditedFileContent(lines, dialoguesMap)    
+
+//     writeSubtitleFile(editedLines, outputFile)
+
+// }
+
+
+// const readSubtitleFile = (inputFile) => {
+//     console.info('Lendo arquivo de legenda...')
+
+//     const fileContent = fs.readFileSync(inputFile, 'utf8')
+//     const lines = fileContent.split(LINE_SEPARATOR)
+//     return lines
+// }
+
 
 // const path = '/home/lourran/Downloads/tmp'
 // const input = `${path}/[HorribleSubs] Infinite Dendrogram - 10 [1080p].srt`
@@ -192,12 +220,6 @@ const translateSubtitle = async (data) => {
 
 // translateFile('str.str', 'str-br.str')
 
-module.exports = {
-    translateSubtitle,
-    extractSubtitles,
-    joinSubtitle,
-    getSubtitlesFiles
-}
 
 // const data = {
 //     torrent: { path: '/home/lourran/Downloads/tmp' }

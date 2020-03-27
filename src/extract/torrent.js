@@ -45,7 +45,7 @@ const whenTorrentDone = (data) => new Promise((resolve, reject) => {
 })
 
 const startProgressLog = async (data) => {
-    data.progressLog = setInterval(() => console.log(`Progresso [${(data.torrent.progress * 100).toFixed(0)}%] [${utils.bytesToSize(data.torrent.downloadSpeed)}/s] [${utils.bytesToSize(data.torrent.uploadSpeed)}/s]`), 3000)
+    data.progressLog = setInterval(() => console.info(`Progresso [${(data.torrent.progress * 100).toFixed(0)}%] [${utils.bytesToSize(data.torrent.downloadSpeed)}/s] [${utils.bytesToSize(data.torrent.uploadSpeed)}/s]`), 3000)
     data.startTime = Date.now()
     return Promise.resolve(data)
 }
