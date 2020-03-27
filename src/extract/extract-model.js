@@ -14,7 +14,8 @@ const schema = mongoose.Schema({
         magnetURI: { type: String },
         fileContent: { type: String },
         fileContentTranslated: { type: String },
-    }]
+    }],
+    isCached: { type: Boolean },
 }, { versionKey: false, timestamps: true})
 
 const Extraction = mongoose.model("extractions", schema)

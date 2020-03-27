@@ -2,9 +2,9 @@ const router = require("express").Router()
 const service = require('./extract-service')
 
 router.post('/', async (req, res) => {
-    const { magnetLink, langTo, langFrom } = req.body
+    const { magnetLink, langTo, langFrom, ignoreCache } = req.body
     
-    const extraction = {magnetLink, langTo, langFrom}
+    const extraction = {magnetLink, langTo, langFrom, ignoreCache}
 
     service.saveExtraction({ extraction })
         .then((data) => { res.json(data.extraction); return data;})
