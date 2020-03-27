@@ -118,9 +118,7 @@ const translateDialogue = async (dialogues, {from, to}) => {
     return fixedTranslations 
 }
 
-const writeSubtitleFile = (lines, outputFile) => {
-    fs.writeFileSync(outputFile, lines.join(LINE_SEPARATOR))    
-}
+
 
 const getEditedFileContent = (lines, dialoguesMap) => {
     console.info('Efetuando edição do arquivo original de legandas...')
@@ -179,6 +177,9 @@ module.exports = {
     getSubtitlesFiles
 }
 
+// const writeSubtitleFile = (lines, outputFile) => {
+//     fs.writeFileSync(outputFile, lines.join(LINE_SEPARATOR))    
+// }
 
 // const translateFile = async (inputFile, outputFile, languages) => {
 

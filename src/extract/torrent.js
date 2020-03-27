@@ -5,6 +5,7 @@ const rimraf = require("rimraf");
 const WebTorrent = require('webtorrent')
 const client = new WebTorrent({ maxConns: 200 })
 const utils = require('./utils')
+const { notifySocket } = require('../socket/socket-events')
 
 const startDownload = (data) => new Promise((resolve) => {
     if (!data.extraction.magnetLink) return
@@ -45,24 +46,61 @@ const whenTorrentDone = (data) => new Promise((resolve, reject) => {
 })
 
 const startProgressLog = async (data) => {
-    data.progressLog = setInterval(() => console.info(`Progresso [${(data.torrent.progress * 100).toFixed(0)}%] [${utils.bytesToSize(data.torrent.downloadSpeed)}/s] [${utils.bytesToSize(data.torrent.uploadSpeed)}/s]`), 3000)
+    data.progressLog = setInterval(() => {
+        
+        const status = {
+            extra: { 
+                progress: (data.torrent.progress * 100).toFixed(0),
+                downloadSpeed: utils.bytesToSize(data.torrent.downloadSpeed),
+                uploadSpeed: utils.bytesToSize(data.torrent.uploadSpeed),
+            },
+            status: 'DOWNLOADING'
+        }
+
+        const msg = `Progresso [${status.extra.progress}%] [${status.extra.downloadSpeed}/s] [${status.extra.uploadSpeed}/s]`
+        status.extra.msg = msg
+        
+        console.info(msg)        
+        
+        notifyClient(data, status)
+
+    }, 1000)
     data.startTime = Date.now()
     return Promise.resolve(data)
 }
 
 const onStartDownload = async (data) => {
     data.torrent.files.map((file) => {
-        console.info('Iniciando download:', file.path)        
-        notifyEvent({ title: 'Iniciando download', message: file.path })
+        console.info('Iniciando download:', file.path)
+
+        const status = {
+            extra: {
+                file: file.name
+            },
+            status: "STARTED"
+        }
+
+        notifyClient(data, status)
     })
     return Promise.resolve(data)
 }
 
 const onFinishDownload = async (data) => {
     data.torrent.files.map((file) => {
+        const downloadTime = `${utils.msToFormatedTime(Date.now() - data.startTime)}s`
+
         console.info('Download concluido:', file.path)
-        console.info(`Download time: ${utils.msToFormatedTime(Date.now() - data.startTime)}s`)
-        notifyEvent({ title: 'Download concluido', message: file.path })
+        console.info(`Download time: ${downloadTime}`)
+        
+        const status = {
+            extra: {
+                file: file.name,
+                downloadTime
+            },
+            status: "DONE"
+        }
+
+        notifyClient(data, status)
     })
 
     Object.assign(data, { file: `${data.torrent.path}/${data.torrent.name}`})
@@ -76,9 +114,7 @@ const stopProgressLog = async (data) => {
     return Promise.resolve(data)
 }
 
-const notifyEvent = ({title, message}) => {
-    // TODO
-}
+const notifyClient = async (data, status) => notifySocket(data.extraction.id, status)
 
 module.exports = {
     startDownload,
