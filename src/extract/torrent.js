@@ -64,7 +64,7 @@ const startProgressLog = async (data) => {
         
         notifyClient(data, status)
 
-    }, 1000)
+    }, 2000)
     data.startTime = Date.now()
     return Promise.resolve(data)
 }
@@ -97,7 +97,7 @@ const onFinishDownload = async (data) => {
                 file: file.name,
                 downloadTime
             },
-            status: "DONE"
+            status: "FINISHED"
         }
 
         notifyClient(data, status)

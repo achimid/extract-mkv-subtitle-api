@@ -2,6 +2,7 @@ const Extraction = require('./extract-model')
 const subtitle = require('./subtitle')
 const torrent = require('./torrent')
 const translation = require('../translation/translation-service')
+const { notifySocket } = require('../socket/socket-events')
 
 const startExtraction = (data) => {
     if (data.extraction.isCached) return
@@ -14,6 +15,7 @@ const startExtraction = (data) => {
         .then(translation.saveTranslations)
         .then(torrent.removeTorrentFromClient)
         .then(torrent.removeFileFromFileSystem)
+        .then(notifyClientDone)
 }
 
 const findExtraction = (data) => {
@@ -37,6 +39,12 @@ const saveExtraction = async (data) => {
 }
 
 const findById = (id) => Extraction.findById(id)
+
+const notifyClientDone = async (data) => {
+    Promise.resolve(data)
+
+    notifySocket(data.extraction.id, { body: data.extraction, status: 'DONE' })
+}
 
 module.exports = {
     startExtraction,
