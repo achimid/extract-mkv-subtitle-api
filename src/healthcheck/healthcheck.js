@@ -8,6 +8,6 @@ if (process.env.KEEP_UP != 'false') {
 }
 
 // Health Check Endpoint
-router.get('/health', async (req, res) => { res.json({status: 'ok'}) })
+router.get('/', async (req, res) => { res.json({status: 'ok'}) })
 
 module.exports = router
