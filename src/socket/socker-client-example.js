@@ -1,6 +1,6 @@
 
-const SERVER_URL = 'http://localhost:9001'
-const EXTRACTION_ID = '5e7e3bcebc9a6d63b1e09406'
+const SERVER_URL = 'https://extract-mkv-subtitle-api.herokuapp.com/'
+const EXTRACTION_ID = '5e7e3d42f8d1290017ecf4bd'
 
 const socket = require('socket.io-client')(SERVER_URL, { transports: ['websocket'] })
 
