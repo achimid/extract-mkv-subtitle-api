@@ -1,7 +1,7 @@
 const Extraction = require('./extract-model')
 const subtitle = require('./subtitle')
 const torrent = require('./torrent')
-const translation = require('../translation/extract-service')
+const translation = require('../translation/translation-service')
 
 const startExtraction = (data) => torrent.startDownload(data)
     .then(subtitle.extractSubtitles)

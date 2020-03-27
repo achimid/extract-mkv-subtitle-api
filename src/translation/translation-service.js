@@ -2,6 +2,8 @@ const Translation = require('./translation-model')
 
 const saveTranslations = async (data) => {
 
+    if (!data.extraction.langTo) return Promise.resolve(data)
+
     console.info('Salvando traduções...')
 
     const lang = {
