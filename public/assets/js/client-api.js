@@ -1,7 +1,7 @@
 const SERVER_URL = 'http://extractmkvsubtitle.ddns.net'
 // const SERVER_URL = 'http://localhost:9001'
 
-const $progressBar = new ldBar("#progress-bar")
+
 const $dlwSpeed = document.querySelector("#dlw-speed")
 const $uplSpeed = document.querySelector("#upl-speed")
 const $magnetLink = document.querySelector("#magnetLink")
@@ -11,7 +11,8 @@ const $result = document.querySelector('#result')
 const $useCache = document.querySelector('#useCache')
 const $langTo = document.querySelector('#langTo')
 
-const socket = io(SERVER_URL, { transports: ['websocket'] })
+const socket = io(SERVER_URL)
+socket.on('reconnect_attempt', () => { socket.io.opts.transports = ['polling', 'xhr-polling', 'websocket'] })
 
 const showForm = () => $form.classList.remove('hidden')
 const hideForm = () => $form.classList.add('hidden')
@@ -21,17 +22,19 @@ const hideStatus = () => $status.classList.add('hidden')
 
 
 function sendExtraction() {
+    const body = {
+        magnetLink: $magnetLink.value, 
+        ignoreCache: !$useCache.checked,
+        langTo: $langTo.value
+    }
+    
     fetch(SERVER_URL + '/api/v1/extract', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-            magnetLink: $magnetLink.value, 
-            ignoreCache: !$useCache.checked,
-            langTo: $langTo.value
-        })
+        body: JSON.stringify(body)
     })
         .then(res => res.json())
         .then(onResponseExtraction)
@@ -42,6 +45,7 @@ const onResponseExtraction = (extraction) => {
 
 
     socket.on(`${EXTRACTION_ID}_DOWNLOADING`, ({extra}) => {
+        const $progressBar = new ldBar("#progress-bar")
         $progressBar.set(extra.progress, false)
         $dlwSpeed.innerHTML = extra.downloadSpeed
         $uplSpeed.innerHTML = extra.uploadSpeed    

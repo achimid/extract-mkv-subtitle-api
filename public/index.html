@@ -15,14 +15,14 @@
 				<h1>MKV Subtitle Extract</h1>
 				<p>
 					A simple tool service to extract subtitle from a MKV file<br/>
-					given a Torrent MagnetLink and try a automatic tranlation <br/>
+					given a Torrent MagnetLink and try an automatic translation <br/>
 					in the subtitle dialogues. Using this <a href="https://github.com/achimid/extract-mkv-subtitle-api">API</a>.
 				</p>
 			</header>
 
 		<!-- Signup Form -->
 			<form id="extract-form" method="post" action="#">
-				<input type="text" name="magnetLink" id="magnetLink" placeholder="Torrent MagnetLink" />
+				<input type="text" name="magnetLink" id="magnetLink" placeholder="Torrent MagnetLink" required/>
 				<select id="langTo" title="Tranlation Language">
 					<option value="">Translation</option>
 					<option value="pt">Português</option>
@@ -60,8 +60,8 @@
 			</footer>
 
 		<!-- Scripts -->
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js" integrity="sha256-bQmrZe4yPnQrLTY+1gYylfNMBuGfnT/HKsCGX+9Xuqo=" crossorigin="anonymous"></script>			
 			<script type="text/javascript" src="assets/js/loading-bar.min.js"></script>	
-			<script type="text/javascript" src="assets/js/socket.io.js"></script>
 			<script src="assets/js/client-api.js"></script>
 			<script src="assets/js/main.js"></script>
 
