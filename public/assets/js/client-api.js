@@ -11,7 +11,7 @@ const $result = document.querySelector('#result')
 const $useCache = document.querySelector('#useCache')
 const $langTo = document.querySelector('#langTo')
 
-const socket = io(SERVER_URL)
+const socket = io(SERVER_URL, { transports: ['websocket'] })
 socket.on('reconnect_attempt', () => { socket.io.opts.transports = ['polling', 'xhr-polling', 'websocket'] })
 
 const showForm = () => $form.classList.remove('hidden')

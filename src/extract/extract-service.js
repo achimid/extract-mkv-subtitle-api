@@ -43,6 +43,8 @@ const saveExtraction = async (data) => {
 const findById = (id) => Extraction.findById(id)
 
 const notifyClientDone = async (data) => {
+    console.info('Notificando evento de DONE')
+    
     Promise.resolve(data)
 
     notifySocket(data.extraction.id, { body: data.extraction, status: 'DONE' })
