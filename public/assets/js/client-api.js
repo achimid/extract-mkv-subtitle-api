@@ -1,4 +1,5 @@
 const SERVER_URL = 'http://extractmkvsubtitle.ddns.net'
+// const SERVER_URL = 'http://localhost:9001'
 
 const $progressBar = new ldBar("#progress-bar")
 const $dlwSpeed = document.querySelector("#dlw-speed")
