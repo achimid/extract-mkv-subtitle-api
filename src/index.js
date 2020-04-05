@@ -16,6 +16,7 @@ app.disable('x-powered-by')
 
 app.use('/api/v1/healthcheck', require('./healthcheck/healthcheck'))
 app.use('/api/v1/extract', require('./extract/extract-controller'))
+app.use(express.static('public'));
 
 databaseInit()
 registerSocketEvents(io)

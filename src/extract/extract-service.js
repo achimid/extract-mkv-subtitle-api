@@ -19,7 +19,7 @@ const startExtraction = (data) => {
 }
 
 const findExtraction = (data) => {
-    if (data.extraction.ignoreCache) return data.extraction
+    if (data.extraction.ignoreCache !== 'true') return data.extraction
 
     return Extraction.findOne(data.extraction).then((extraction) => {        
         return extraction ? Object.assign(extraction, { isCached: true}) :  data.extraction

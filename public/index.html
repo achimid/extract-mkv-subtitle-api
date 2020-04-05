@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>MKV Subtitle Extract</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" type="text/css" href="assets/css/loading-bar.min.css"/>
+
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<h1>MKV Subtitle Extract</h1>
+				<p>
+					A simple tool service to extract subtitle from a MKV file<br/>
+					given a Torrent MagnetLink and try a automatic tranlation <br/>
+					in the subtitle dialogues. Using this <a href="https://github.com/achimid/extract-mkv-subtitle-api">API</a>.
+				</p>
+			</header>
+
+		<!-- Signup Form -->
+			<form id="extract-form" method="post" action="#">
+				<input type="text" name="magnetLink" id="magnetLink" placeholder="Torrent MagnetLink" />
+				<select id="langTo" title="Tranlation Language">
+					<option value="">Translation</option>
+					<option value="pt">Português</option>
+					<option value="fr">Francês</option>
+					<option value="es">Espanhol</option>
+				</select>
+				<div class="div-use-cache">
+					<input type="checkbox" id="useCache" name="useCache" checked>
+					<label for="useCache">Cache</label>
+				  </div>
+				<input type="submit" value="Extract" />
+			</form>
+
+			<div id="status" class="row">
+				<div class="col">
+					<div id="progress-bar"></div>				
+				</div>
+				<p class="col-ml"> Download: <span id="dlw-speed"></span>/s </p>
+				<p class="col-ml"> Upload: <span id="upl-speed"></span>/s </p>
+			</div>
+
+			<div id="result"></div>
+			
+				
+
+		<!-- Footer -->
+			<footer id="footer">
+				<ul class="icons">
+					<li><a href="https://github.com/achimid/extract-mkv-subtitle-api" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+					<li><a href="mailto:achimid@hotmail.com?subject=MKV-Subtitle-Extract-(Contact)" class="icon fa-envelope"><span class="label">Email</span></a></li>
+				</ul>
+				<ul class="copyright">
+					<li>&copy; Achimid</li><li>Credits: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</footer>
+
+		<!-- Scripts -->
+			<script type="text/javascript" src="assets/js/loading-bar.min.js"></script>	
+			<script type="text/javascript" src="assets/js/socket.io.js"></script>
+			<script src="assets/js/client-api.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+	
+</html>
