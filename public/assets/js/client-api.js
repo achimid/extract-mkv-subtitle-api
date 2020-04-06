@@ -1,5 +1,5 @@
-const SERVER_URL = 'http://extractmkvsubtitle.ddns.net'
-// const SERVER_URL = 'http://localhost:9001'
+// const SERVER_URL = 'http://extractmkvsubtitle.ddns.net'
+const SERVER_URL = 'http://localhost:9001'
 
 
 const $dlwSpeed = document.querySelector("#dlw-speed")
@@ -36,13 +36,14 @@ function sendExtraction() {
         },
         body: JSON.stringify(body)
     })
-        .then(res => res.json())
+        .then(res => { return res.status == 200 ? res.json() : null })
         .then(onResponseExtraction)
 }
 
 const onResponseExtraction = (extraction) => {
-    const EXTRACTION_ID = extraction._id
+    if (extraction == null) return
 
+    const EXTRACTION_ID = extraction._id
 
     socket.on(`${EXTRACTION_ID}_DOWNLOADING`, ({extra}) => {
         const $progressBar = new ldBar("#progress-bar")

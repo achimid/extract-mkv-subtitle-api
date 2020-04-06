@@ -29,6 +29,13 @@ const findExtraction = (data) => {
 }
 
 const saveExtraction = async (data) => {
+    console.info('Salvando extração...')
+    data.extraction.save()
+    
+    return Promise.resolve(data)
+}
+
+const saveOrGetExtraction = async (data) => {
     
     let extraction = await findExtraction(data)
 
@@ -52,6 +59,6 @@ const notifyClientDone = async (data) => {
 
 module.exports = {
     startExtraction,
-    saveExtraction,
+    saveOrGetExtraction,
     findById
 }

@@ -1,18 +1,20 @@
 const router = require("express").Router()
 const service = require('./extract-service')
+const { validate } = require('./extract-validator')
 
-router.post('/', async (req, res) => {
+
+router.post('/', validate, async (req, res) => {
     const { magnetLink, langTo, langFrom, ignoreCache } = req.body
     
     const extraction = {magnetLink, langTo, langFrom, ignoreCache}
 
-    service.saveExtraction({ extraction })
+    service.saveOrGetExtraction({ extraction })
         .then((data) => { res.json(data.extraction); return data;})
         .then((data) => service.startExtraction(data))        
 
 })
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', validate, async (req, res) => {
     service.findById(req.params.id)
         .then((data) => res.json(data))
         .catch(console.error)

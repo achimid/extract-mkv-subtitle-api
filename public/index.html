@@ -30,7 +30,9 @@
 
 		<!-- Signup Form -->
 			<form id="extract-form" method="post" action="#">
-				<input type="text" name="magnetLink" id="magnetLink" placeholder="Torrent MagnetLink" required/>
+				<input type="text" name="magnetLink" id="magnetLink" 
+					placeholder="Torrent MagnetLink" pattern="magnet:\?xt=urn:[a-z0-9]{0,200}" 
+					title="This field should be a magnetLink" required/>
 				<select id="langTo" title="Tranlation Language">
 					<option value="">Translation</option>
 					<option value="pt">Português</option>
