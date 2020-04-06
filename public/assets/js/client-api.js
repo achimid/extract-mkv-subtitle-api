@@ -52,8 +52,16 @@ const onResponseExtraction = (extraction) => {
     })
 
     socket.on(`${EXTRACTION_ID}_DONE`, ({body}) => {
+        console.info('Evento de DONE', body)
         hideStatus()
         createSubtitlesDownload(body)
+        console.info('Evento de DONE concluido')
+    })
+
+    socket.on(`${EXTRACTION_ID}_FINISHED`, (data) => {
+        console.info('Evento de FINISHED', data)
+        hideStatus()
+        console.info('Evento de FINISHED concluido')
     })
 
     if(notHasSubtitles(extraction)) {
