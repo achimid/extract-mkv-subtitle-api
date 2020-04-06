@@ -146,7 +146,6 @@ Como uma melhor extratégia de utilização do serviço, de preferência a utili
 
 * Implementar a união das legendas traduzidas diretamente no arquivo e fornecer para download
 * Permitir tradução para multiplas linguagens
-* Criar um front-end para a API
 * Possibilitar a extração de outros formatos de video alem de MKV
 * Possibilitar o download do arquivo de outra maneiras (Mirros, Links Diretos e Upload de arquivos)
 * Implementar sistema de Métrica
