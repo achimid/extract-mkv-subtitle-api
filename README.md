@@ -1,6 +1,7 @@
 # extract-mkv-subtitle-api
 
-Url para teste da API => http://extractmkvsubtitle.ddns.net/api/v1
+[Site](http://extractmkvsubtitle.ddns.net/)
+[API](http://extractmkvsubtitle.ddns.net/api/v1)
 
 Esta é uma API que tem como objetivo extrair legendas de arquivos de extensão MKV utilizando o MagnetLink Torrent para download do arquivo. Neste processo ela também pode efetuar a tradução do arquivo de legenda (Dialogos).
 
