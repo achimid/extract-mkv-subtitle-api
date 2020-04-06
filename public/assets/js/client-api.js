@@ -36,14 +36,15 @@ function sendExtraction() {
         },
         body: JSON.stringify(body)
     })
-        .then(res => { return res.status == 200 ? res.json() : null })
+        .then(res => res.json())
         .then(onResponseExtraction)
 }
 
 const onResponseExtraction = (extraction) => {
     if (extraction == null) return
-
+    
     const EXTRACTION_ID = extraction._id
+
 
     socket.on(`${EXTRACTION_ID}_DOWNLOADING`, ({extra}) => {
         const $progressBar = new ldBar("#progress-bar")
