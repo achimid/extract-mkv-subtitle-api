@@ -150,3 +150,5 @@ Como uma melhor extratégia de utilização do serviço, de preferência a utili
 * Possibilitar o download do arquivo de outra maneiras (Mirros, Links Diretos e Upload de arquivos)
 * Implementar sistema de Métrica
 * Implementar sistema de authenticação e controle de requisições por conta
+* Fazer uma url de proxy para os google analitics e outros
+* Tentar remover arquivos desnecessários do front-end
