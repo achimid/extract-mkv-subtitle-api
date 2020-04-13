@@ -148,7 +148,8 @@ Como uma melhor extratégia de utilização do serviço, de preferência a utili
 * Permitir tradução para multiplas linguagens
 * Possibilitar a extração de outros formatos de video alem de MKV
 * Possibilitar o download do arquivo de outra maneiras (Mirros, Links Diretos e Upload de arquivos)
-* Implementar sistema de Métrica
+* Implementar sistema de Métrica para API
 * Implementar sistema de authenticação e controle de requisições por conta
-* Fazer uma url de proxy para os google analitics e outros
-* Tentar remover arquivos desnecessários do front-end
+* Corrigir a extração para quando o arquivo esta em subpastas (url teste: magnet:?xt=urn:btih:5256bce7c4f3eaf0d19a02d56bc958b96e61be72&dn=Homeland.S08E10.1080p.WEB.H264-XLF[rartv]&tr=http://tracker.trackerfix.com:80/announce&tr=udp://9.rarbg.me:2860&tr=udp://9.rarbg.to:2940)
+* Adicionar mensagem de retorno quando nenhuma legenda for encontrada ou der algum erro.
+* Melhorar o tratamento de erro da API
