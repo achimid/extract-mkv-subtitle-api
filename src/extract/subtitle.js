@@ -162,7 +162,7 @@ const translateSubtitle = async (data) => {
 
             const editedFileContent = getEditedFileContent(lines, dialoguesMap).join(LINE_SEPARATOR)
 
-            return { fileContentTranslated: editedFileContent, dialoguesMap, to}
+            return { content: editedFileContent, dialoguesMap, to}
         })
 
         const translations = await Promise.all(translationsPromises)
