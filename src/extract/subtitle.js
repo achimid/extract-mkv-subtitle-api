@@ -1,8 +1,8 @@
 const fs = require('fs')
 const path = require('path');
 const translate = require('google-translate-open-api')
-const utils = require('./utils')
-var os = require('os')
+const os = require('os')
+const decode = require('unescape');
 
 const LINE_SEPARATOR = os.EOL
 const SCRIPT_PATH = `${process.cwd()}/scripts`
@@ -19,13 +19,14 @@ const REGEX_REMOVE = [
 ]
 
 const fixPontuation = (str) => {
-    return str.replace(/[&\/\\#,+()$~%.'":*?!<>{}]/g, '$& ')
-        .replace(/(\.\s){3}/g, '... ')
-        .replace(/\?\s\!\s/g, '?! ')
-        .replace(/\!\s\?\s/g, '!? ')
-        .replace(/\s{2}/g, ' ')
-        .replace(/\s+(?=[^{]*\})/g, "")
-        .trim()
+    // return str.replace(/[&\/\\#,+()$~%.'":*?!<>{}]/g, '$& ')
+    //     .replace(/(\.\s){3}/g, '... ')
+    //     .replace(/\?\s\!\s/g, '?! ')
+    //     .replace(/\!\s\?\s/g, '!? ')
+    //     .replace(/\s{2}/g, ' ')
+    //     .replace(/\s+(?=[^{]*\})/g, "")
+    //     .trim()
+    return str
 }
 
 const replaceEspecialChars = (d) => {
@@ -113,7 +114,7 @@ const translateDialogue = async (dialogues, {from, to}) => {
     const translationResponse = await translate.default(dialogues, options)
     const content = translationResponse.data[0]
     const translations = translate.parseMultiple(content)
-    const fixedTranslations = translations.map(fixPontuation)
+    const fixedTranslations = translations.map(fixPontuation).map(s => decode(s))
 
     return fixedTranslations 
 }
@@ -140,29 +141,36 @@ const translateSubtitle = async (data) => {
 
     if (!data.extraction.langTo) return Promise.resolve(data)
 
-    const languages = {
-        from: data.extraction.langFrom, 
-        to: data.extraction.langTo
-    }
+    const langsTo = data.extraction.langTo.split('|')
 
-    const translationsPs = data.extraction.subtitles.map(async (sub) => {
+    const subTranslationsPromises = data.extraction.subtitles.map(async (sub) => {
         const {fileContent} = sub
-        const lines = fileContent.split(LINE_SEPARATOR)
+        // const lines = fileContent.split(LINE_SEPARATOR)
+        const lines = fileContent.split("\\n")
         const {dialoguesLines, dialogues} = getSSADialogues(lines)
-        const translations = await translateDialogue(dialogues, languages)
-        
-        const dialoguesMap = dialogues.map((original, index) => {
-            const translated = translations[index]
-            const line = dialoguesLines[index]
-            return {line, original, translated}
+
+        const translationsPromises = langsTo.map(async (to) => {
+            const languages = { from: data.extraction.langFrom, to }
+
+            const translations = await translateDialogue(dialogues, languages)
+
+            const dialoguesMap = dialogues.map((original, index) => {
+                const translated = translations[index]
+                const line = dialoguesLines[index]
+                return {line, original, translated, to}
+            })
+
+            const editedFileContent = getEditedFileContent(lines, dialoguesMap).join(LINE_SEPARATOR)
+
+            return { fileContentTranslated: editedFileContent, dialoguesMap, to}
         })
 
-        const editedFileContent = getEditedFileContent(lines, dialoguesMap).join(LINE_SEPARATOR)
+        const translations = await Promise.all(translationsPromises)
         
-        return Object.assign(sub, { fileContentTranslated: editedFileContent, dialoguesMap})
+        return Object.assign(sub, { translations })
     })
 
-    const subtitles = await Promise.all(translationsPs)
+    const subtitles = await Promise.all(subTranslationsPromises)
     data.extraction.subtitles = subtitles
 
     console.info('Terminando tradução das legendas...')
