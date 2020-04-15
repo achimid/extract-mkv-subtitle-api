@@ -2,7 +2,8 @@ const fs = require('fs')
 const path = require('path');
 const translate = require('google-translate-open-api')
 const os = require('os')
-const decode = require('unescape');
+const decode = require('unescape')
+const translationsService = require('../translation/translation-service')
 
 const LINE_SEPARATOR = os.EOL
 const SCRIPT_PATH = `${process.cwd()}/scripts`
@@ -111,10 +112,21 @@ const translateDialogue = async (dialogues, {from, to}) => {
     console.info('Efetuando tradução dos dialogos (google-API) ...')
 
     const options = {tld: "cn", from, to}
+
+    // Testing
+    console.time('cached'+to)
+    await translationsService.translateMultiples(dialogues, options)
+    console.timeEnd('cached'+to)
+
+    // Testing
+    console.time('tradução'+to)
+
     const translationResponse = await translate.default(dialogues, options)
     const content = translationResponse.data[0]
     const translations = translate.parseMultiple(content)
     const fixedTranslations = translations.map(fixPontuation).map(s => decode(s))
+
+    console.timeEnd('tradução'+to)
 
     return fixedTranslations 
 }

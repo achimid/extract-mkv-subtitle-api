@@ -23,6 +23,15 @@ const saveTranslations = async (data) => {
     return data
 }
 
+const translateMultiples = async (dialogues, {from = 'en', to}) => {
+
+    const queryOr = dialogues.map(original => { return { original, from, to} })
+    const finded =  await Translation.find({ $or: queryOr})
+
+    return Promise.resolve(finded)
+}
+
 module.exports = {
-    saveTranslations
+    saveTranslations,
+    translateMultiples
 }
