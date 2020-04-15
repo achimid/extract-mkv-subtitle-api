@@ -135,45 +135,46 @@ const getEditedFileContent = (lines, dialoguesMap) => {
     })
 }
 
+const multipleTranslations = async (sub, langsTo, from) => {
+    const {fileContent} = sub
+    const lines = fileContent.split(LINE_SEPARATOR)
+    // const lines = fileContent.split('\\n')
+    const {dialoguesLines, dialogues} = getSSADialogues(lines)
 
-const translateSubtitle = async (data) => {
-    console.info('Começando Tradução das legendas...')
+    const translationsPromises = langsTo.map(async (to) => {
+        const languages = { from, to }
 
-    if (!data.extraction.langTo) return Promise.resolve(data)
+        const translations = await translateDialogue(dialogues, languages)
 
-    const langsTo = data.extraction.langTo.split('|')
-
-    const subTranslationsPromises = data.extraction.subtitles.map(async (sub) => {
-        const {fileContent} = sub
-        // const lines = fileContent.split(LINE_SEPARATOR)
-        const lines = fileContent.split("\\n")
-        const {dialoguesLines, dialogues} = getSSADialogues(lines)
-
-        const translationsPromises = langsTo.map(async (to) => {
-            const languages = { from: data.extraction.langFrom, to }
-
-            const translations = await translateDialogue(dialogues, languages)
-
-            const dialoguesMap = dialogues.map((original, index) => {
-                const translated = translations[index]
-                const line = dialoguesLines[index]
-                return {line, original, translated, to}
-            })
-
-            const editedFileContent = getEditedFileContent(lines, dialoguesMap).join(LINE_SEPARATOR)
-
-            return { content: editedFileContent, dialoguesMap, to}
+        console.info('Gerando map de dialogos')
+        const dialoguesMap = dialogues.map((original, index) => {
+            const translated = translations[index]
+            const line = dialoguesLines[index]
+            return {line, original, translated, to, index}
         })
 
-        const translations = await Promise.all(translationsPromises)
-        
-        return Object.assign(sub, { translations })
+        const editedFileContent = getEditedFileContent(lines, dialoguesMap).join(LINE_SEPARATOR)
+
+        return { content: editedFileContent, dialoguesMap, to }
     })
 
-    const subtitles = await Promise.all(subTranslationsPromises)
-    data.extraction.subtitles = subtitles
+    const translations = await Promise.all(translationsPromises)
+    
+    return Object.assign(sub, { translations })
+}
 
-    console.info('Terminando tradução das legendas...')
+
+const translateSubtitle = async (data) => {
+    console.info('Começando Tradução das legendas...', data.file)
+
+    const { langsTo, langFrom } = data.extraction
+    if (!langsTo || langsTo.length <= 0) return Promise.resolve(data)
+
+    const subTranslationsPromises = data.extraction.subtitles.map(sub => multipleTranslations(sub, langsTo, langFrom))
+
+    data.extraction.subtitles = await Promise.all(subTranslationsPromises)
+
+    console.info('Terminando tradução das legendas...', data.file)
 
     return Promise.resolve(data)
 }

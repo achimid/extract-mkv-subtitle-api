@@ -5,7 +5,7 @@ const schema = mongoose.Schema({
         type: String,
         required: true
     },
-    langTo: { type: String },
+    langsTo: [{ type: String }],
     langFrom: { type: String },
     subtitles: [{
         fileName: { type: String }, 
@@ -14,11 +14,12 @@ const schema = mongoose.Schema({
         magnetURI: { type: String },
         fileContent: { type: String },
         translations: [{
-            dialogueMap: [{
+            dialoguesMap: [{
                 line: { type: String },
                 original: { type: String },
                 translated: { type: String },
-                to: { type: String }
+                to: { type: String },
+                index: { type: Number}
             }],
             fileContentTranslated: { type: String},
             to: { type: String}

@@ -23,7 +23,7 @@ Você deve efetuar uma requisição `POST` para o endpoint `/extract` com as seg
     {
         "magnetLink": "magnet:?xt=urn:btih:LD2KV6EC7RV7Z....",
         "langFrom": "en",
-        "langTo": "pt",
+        "langsTo": ["pt", "es"],
         "ignoreCache": "true"
     }
 
@@ -38,7 +38,7 @@ Como resultado será retornado o body a seguir:
     {
         "_id": "5e7e4ed5f8d1290017ecf5fc",
         "magnetLink": "magnet:?xt=urn:btih:LD2KV6EC7RV7....",
-        "langTo": "pt",
+        "langTo": ["pt", "es"],
         "subtitles": []
     }
 
@@ -47,7 +47,7 @@ Veja que a lista de legendas se encontra vasia. Quando o processo de download, e
     {
         "_id": "5e7e4ed5f8d1290017ecf5fc",
         "magnetLink": "magnet:?xt=urn:btih:58f4aaf882fc...",
-        "langTo": "pt",
+        "langTo": ["pt", "es"],
         "subtitles": [
             {
                 "_id": "5e7e4f06f8d1290017ecf5fd",
@@ -125,7 +125,7 @@ Como uma melhor extratégia de utilização do serviço, de preferência a utili
     // {
     //     "_id": "5e7e4ed5f8d1290017ecf5fc",
     //     "magnetLink": "magnet:?xt=urn:btih:58f4aaf882fc...",
-    //     "langTo": "pt",
+    //     "langTo": ["pt", "es"],
     //     "subtitles": [
     //         {
     //             "_id": "5e7e4f06f8d1290017ecf5fd",

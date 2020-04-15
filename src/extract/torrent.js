@@ -34,11 +34,17 @@ const removeTorrentFromClient = (data) => new Promise((resolve, reject) => {
 })
 
 const removeFileFromFileSystem = (data) => new Promise((resolve, reject) => {
+    if (process.env.DELETE_FILE == 'false') return resolve(data)
     console.info('Removendo arquivos...')
     rimraf(data.torrent.path, (err) => err ?  reject(err) : resolve(data))
 })
 
 const whenTorrentDone = (data) => new Promise((resolve, reject) => {
+    if (data.torrent.done) {
+        console.info('Download do torrent finalizado... (cached)')
+        return resolve(data)
+    }
+
     data.torrent.on('done', () => {
         console.info('Download do torrent finalizado...')
         resolve(data)

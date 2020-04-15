@@ -3,7 +3,7 @@ const Joi = require('@hapi/joi');
 const validate = (req, res, next) => {
     const schema = Joi.object({
         magnetLink: Joi.string().pattern(/magnet:\?xt=urn:/i),
-        langTo: Joi.string().allow('').optional(),
+        langsTo: Joi.array().items(Joi.string().allow('').optional()),
         langFrom: Joi.string().allow('').optional(),
         ignoreCache: Joi.boolean().allow('').optional()    
     })

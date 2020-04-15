@@ -4,9 +4,9 @@ const { validate } = require('./extract-validator')
 
 
 router.post('/', validate, async (req, res) => {
-    const { magnetLink, langTo, langFrom, ignoreCache } = req.body
+    const { magnetLink, langsTo, langFrom, ignoreCache } = req.body
     
-    const extraction = {magnetLink, langTo, langFrom, ignoreCache}
+    const extraction = {magnetLink, langsTo, langFrom, ignoreCache}
 
     service.saveOrGetExtraction({ extraction })
         .then((data) => { res.json(data.extraction); return data;})

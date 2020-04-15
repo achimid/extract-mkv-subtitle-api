@@ -21,7 +21,7 @@ const startExtraction = (data) => {
 const findExtraction = (data) => {
     if (data.extraction.ignoreCache) return data.extraction
 
-    const query = {magnetLink: data.extraction.magnetLink, langTo: data.extraction.langTo}
+    const query = {magnetLink: data.extraction.magnetLink, langsTo: data.extraction.langsTo}
     
     return Extraction.findOne(query).then((extraction) => {        
         return extraction ? Object.assign(extraction, { isCached: true}) :  data.extraction
