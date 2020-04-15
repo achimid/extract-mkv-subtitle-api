@@ -19,7 +19,7 @@ const startExtraction = (data) => {
 }
 
 const findExtraction = (data) => {
-    if (data.extraction.ignoreCache) return data.extraction
+    if (data.extraction.ignoreCache != 'false') return data.extraction
 
     const query = {magnetLink: data.extraction.magnetLink, langsTo: data.extraction.langsTo}
     

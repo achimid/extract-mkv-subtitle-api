@@ -21,7 +21,7 @@ const schema = mongoose.Schema({
                 to: { type: String },
                 index: { type: Number}
             }],
-            fileContentTranslated: { type: String},
+            content: { type: String},
             to: { type: String}
         }],
     }],
