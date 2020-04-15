@@ -12,10 +12,10 @@ const REGEX_REMOVE = [
     {old: '\\N', neww: ' '},
     {old: '\\i0}', neww: ''},
     {old: '{\\i1}', neww: ''},
-    {old: '<i>', neww: ''},
-    {old: '</i>', neww: ''},
-    {old: '<b>', neww: ''},
-    {old: '</b>', neww: ''},
+    // {old: '<i>', neww: ''},
+    // {old: '</i>', neww: ''},
+    // {old: '<b>', neww: ''},
+    // {old: '</b>', neww: ''},
 ]
 
 const fixPontuation = (str) => {
@@ -57,15 +57,15 @@ const getLastPart = (string) => {
 
 
 const extractSubtitles = async (data) => {  
-    console.info('Executando script de de extração de legenda...')  
+    console.info('Executando script de de extração de legenda...', data.file)  
     await require("child_process").execSync(`sh ${SCRIPT_PATH}/strExtract.sh ${data.torrent.path} ${SCRIPT_PATH}/bin`)
-    console.info('Execução do script finalizada')
+    console.info('Execução do script finalizada', data.file)
 
     return Promise.resolve(data)
 }
 
 const getSubtitlesFiles = (data) => new Promise((resolve) => {
-    console.info('Obtendo leganda dos arquivos de leganda...')
+    console.info('Obtendo leganda dos arquivos de leganda...', data.file)
 
     fs.readdir(data.torrent.path, function (err, files) {
         if (err) return console.log('Unable to scan directory: ' + err)
@@ -90,9 +90,9 @@ const getSubtitlesFiles = (data) => new Promise((resolve) => {
 })
 
 const joinSubtitle = async (data) => {
-    console.info('Executando script de inclusão de legenda...')  
+    console.info('Executando script de inclusão de legenda...', data.file)  
     await require("child_process").execSync(`sh ${SCRIPT_PATH}/strJoin.sh ${data.torrent.path} ${SCRIPT_PATH}/bin`)
-    console.info('Execução do script finalizada')
+    console.info('Execução do script finalizada', data.file)
     return Promise.resolve(data)
 }
 
@@ -120,7 +120,6 @@ const translateDialogue = async (dialogues, {from, to}) => {
 }
 
 
-
 const getEditedFileContent = (lines, dialoguesMap) => {
     console.info('Efetuando edição do arquivo original de legandas...')
 
@@ -134,6 +133,7 @@ const getEditedFileContent = (lines, dialoguesMap) => {
         return replaceLastPart(firstTranslation.translated, firstTranslation.line)
     })
 }
+
 
 const multipleTranslations = async (sub, langsTo, from) => {
     const {fileContent} = sub
@@ -185,54 +185,3 @@ module.exports = {
     joinSubtitle,
     getSubtitlesFiles
 }
-
-// const writeSubtitleFile = (lines, outputFile) => {
-//     fs.writeFileSync(outputFile, lines.join(LINE_SEPARATOR))    
-// }
-
-// const translateFile = async (inputFile, outputFile, languages) => {
-
-//     console.info('Começando Tradução da legenda...')
-
-//     const lines = readSubtitleFile(inputFile)
-//     const {dialoguesLines, dialogues} = getSSADialogues(lines)
-//     const translations = await translateDialogue(dialogues, languages)
-    
-//     const dialoguesMap = dialogues.map((original, index) => {
-//         const translated = translations[index]
-//         const line = dialoguesLines[index]
-//         return {line, original, translated}
-//     })
-
-//     const editedLines = getEditedFileContent(lines, dialoguesMap)    
-
-//     writeSubtitleFile(editedLines, outputFile)
-
-// }
-
-
-// const readSubtitleFile = (inputFile) => {
-//     console.info('Lendo arquivo de legenda...')
-
-//     const fileContent = fs.readFileSync(inputFile, 'utf8')
-//     const lines = fileContent.split(LINE_SEPARATOR)
-//     return lines
-// }
-
-
-// const path = '/home/lourran/Downloads/tmp'
-// const input = `${path}/[HorribleSubs] Infinite Dendrogram - 10 [1080p].srt`
-// const output = `${path}/[HorribleSubs] Infinite Dendrogram - 10 [1080p].srt`
-
-// extractSubtitle(path)
-//    .then(() => translateFile(input, output))
-//    .then(() => joinSubtitle(path))
-
-// translateFile('str.str', 'str-br.str')
-
-
-// const data = {
-//     torrent: { path: '/home/lourran/Downloads/tmp' }
-// }
-
-// extractSubtitles(data).then(getSubtitlesFiles)

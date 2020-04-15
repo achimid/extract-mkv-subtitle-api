@@ -8,13 +8,13 @@ const saveTranslations = async (data) => {
     console.info('Salvando traduções...', data.file)
 
     const translations = data.extraction.subtitles.map(sub => 
-        sub.translations.map(translation => {
+        sub.translations.map(translation => 
             translation.dialoguesMap.map(dialogue => 
                 new Translation(Object.assign(dialogue.toObject(), {from: langFrom || 'en'}))
             )
-        })
+        )
         
-    ).flat()
+    ).flat().flat()
 
     Translation.insertMany(translations, { ordered: false })
             .then(() => console.info('Traduções salvas...', data.file))
