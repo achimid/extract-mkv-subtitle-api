@@ -65,29 +65,41 @@ const extractSubtitles = async (data) => {
     return Promise.resolve(data)
 }
 
+const findFileOnDirRecursive = (dir, filter) => {
+    if (!fs.existsSync(dir)) return
+    
+    const files = fs.readdirSync(dir)
+    const finded = files.map(file => {
+        const filename = path.join(dir,file)
+        const stat = fs.lstatSync(filename)
+
+        if (stat.isDirectory()){
+            return findFileOnDirRecursive(filename, filter)
+        } else if (filename.indexOf(filter)>=0) {
+            return filename
+        }
+    }).filter(d => d).flat()
+
+    return finded
+}
+
 const getSubtitlesFiles = (data) => new Promise((resolve) => {
     console.info('Obtendo leganda dos arquivos de leganda...', data.file)
 
-    fs.readdir(data.torrent.path, function (err, files) {
-        if (err) return console.log('Unable to scan directory: ' + err)
-        
-        const subtitles = files
-            .filter(f => f.indexOf('.srt') >= 0)
-            .map((f) => {
-                return {
-                    fileName: f, 
-                    filePath: path.join(data.torrent.path, f),
-                    infoHash: data.torrent.infoHash,
-                    magnetURI: data.torrent.magnetURI
-                }
-            })
-            .map(fObj => Object.assign(fObj, {
-                fileContent: fs.readFileSync(fObj.filePath, 'utf8')
-            }))
+    const filesSrt = findFileOnDirRecursive(data.torrent.path, '.srt')
 
-        data.extraction.subtitles = subtitles
-        resolve(data)
+    const subtitles = filesSrt.map(f => {
+        return {
+            fileName: path.basename(f), 
+            filePath: path.dirname(f),
+            infoHash: data.torrent.infoHash,
+            magnetURI: data.torrent.magnetURI,
+            fileContent: fs.readFileSync(f, 'utf8')
+        }
     })
+
+    data.extraction.subtitles = subtitles
+    resolve(data)
 })
 
 const joinSubtitle = async (data) => {
