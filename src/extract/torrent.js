@@ -9,8 +9,11 @@ const { notifySocket } = require('../socket/socket-events')
 
 const startDownload = (data) => new Promise((resolve) => {
     if (!data.extraction.magnetLink) return
+
+    const isDuplicated = client.torrents.filter(({xt}) => data.extraction.magnetLink.indexOf(xt) >= 0)
+    if (isDuplicated) return // TODO: Responder o processo do download em execução
     
-    client.add(data.extraction.magnetLink, { maxWebConns: 20 }, (torrent) => {
+    client.add(data.extraction.magnetLink, { maxWebConns: 50 }, (torrent) => {
         const obj = Object.assign({ client, torrent, pathNew: process.env.DOWNLOAD_FOLDER }, data )
         startProgressLog(obj)
             .then(onStartDownload)

@@ -25,7 +25,7 @@ function sendExtraction() {
     const body = {
         magnetLink: $magnetLink.value, 
         ignoreCache: !$useCache.checked,
-        langTo: $langTo.value
+        langsTo: [$langTo.value]
     }
     
     fetch(SERVER_URL + '/api/v1/extract', {
