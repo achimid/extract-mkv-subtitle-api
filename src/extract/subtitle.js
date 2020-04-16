@@ -119,6 +119,11 @@ const getSSADialogues = (lines) => {
     return {dialoguesLines, dialogues}
 }
 
+// To use
+const getSrtDialogues = (content) => {
+    return content.split('\n\n').map(l => l.split('\n'))
+}
+
 const translateDialogue = async (dialogues, {from, to}) => {
 
     console.info('Efetuando tradução dos dialogos (google-API) ...')
@@ -165,6 +170,8 @@ const multipleTranslations = async (sub, langsTo, from) => {
     // const lines = fileContent.split('\\n')
     const {dialoguesLines, dialogues} = getSSADialogues(lines)
 
+    if (!dialogues || dialogues.length <= 0) return Promise.resolve(sub)
+
     const translationsPromises = langsTo.map(async (to) => {
         const languages = { from, to }
 
@@ -184,7 +191,7 @@ const multipleTranslations = async (sub, langsTo, from) => {
 
     const translations = await Promise.all(translationsPromises)
     
-    return Object.assign(sub, { translations })
+    return Promise.resolve(Object.assign(sub, { translations }))
 }
 
 
