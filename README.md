@@ -65,6 +65,7 @@ Veja que a lista de legendas se encontra vasia. Quando o processo de download, e
                                 "index": 0
                             }
                         ],
+                        "content": "Olá...",
                         "_id": "5e97350fa332a5634daadf0a",
                         "to": "pt"
                     },
@@ -79,6 +80,7 @@ Veja que a lista de legendas se encontra vasia. Quando o processo de download, e
                                 "index": 0
                             }
                         ],
+                        "content": "Hola...",
                         "_id": "5e97350fa332a5634daae0af",
                         "to": "es"
                     }
@@ -176,6 +178,7 @@ Como uma melhor extratégia de utilização do serviço, de preferência a utili
                                     "index": 0
                                 }
                             ],
+                            "content": "Olá...",
                             "_id": "5e97350fa332a5634daadf0a",
                             "to": "pt"
                         },
@@ -190,6 +193,7 @@ Como uma melhor extratégia de utilização do serviço, de preferência a utili
                                     "index": 0
                                 }
                             ],
+                            "content": "Hola...",
                             "_id": "5e97350fa332a5634daae0af",
                             "to": "es"
                         }
@@ -218,3 +222,4 @@ Como uma melhor extratégia de utilização do serviço, de preferência a utili
 * Corrigir a extração para quando o arquivo esta em subpastas (url teste: magnet:?xt=urn:btih:5256bce7c4f3eaf0d19a02d56bc958b96e61be72&dn=Homeland.S08E10.1080p.WEB.H264-XLF[rartv]&tr=http://tracker.trackerfix.com:80/announce&tr=udp://9.rarbg.me:2860&tr=udp://9.rarbg.to:2940)
 * Adicionar mensagem de retorno quando nenhuma legenda for encontrada ou der algum erro.
 * Melhorar o tratamento de erro da API
+* Corrigir esquema de Cache de traduções
