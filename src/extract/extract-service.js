@@ -8,11 +8,10 @@ const startExtraction = (data) => {
     if (data.extraction.isCached) return
 
     return torrent.startDownload(data)
-        .then(subtitle.extractSubtitles)
-        .then(subtitle.getSubtitlesFiles)
-        .then(subtitle.translateSubtitle)
+        .then(subtitle.extractSubtitlesFromVideo)
+        .then(subtitle.getSubtitlesFromFiles)
+        .then(subtitle.translateSubtitles)
         .then(saveExtraction)
-        .then(translation.saveTranslations)
         .then(torrent.removeTorrentFromClient)
         .then(torrent.removeFileFromFileSystem)
         .then(notifyClientDone)

@@ -66,7 +66,7 @@ const startProgressLog = async (data) => {
             status: 'DOWNLOADING'
         }
 
-        const msg = `Progresso [${status.extra.progress}%] [${status.extra.downloadSpeed}/s] [${status.extra.uploadSpeed}/s] [${data.file}]`
+        const msg = `Progresso [${status.extra.progress}%] [${status.extra.downloadSpeed}/s] [${status.extra.uploadSpeed}/s] [${data.torrent.name}]`
         status.extra.msg = msg
         
         console.info(msg)        

@@ -4,5 +4,5 @@ const json = "{\n    \"pathNew\": \"\/tmp\/\",\n    \"extraction\": {\n        \
 
 console.log(JSON.parse(json))
 
-subtitle.translateSubtitle(JSON.parse(json))
+subtitle.translateSubtitles(JSON.parse(json))
     .then((v) => console.log(JSON.stringify(v, null, 4)))

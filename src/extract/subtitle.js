@@ -108,8 +108,7 @@ const SCRIPT_PATH = `${process.cwd()}/scripts`
 
 
 
-// =============== Subtitle ===============
-
+// =============== Subtitle Manipulation ===============
 
     const SUBTITLE_TYPE_MAPPER = {
         loader: {
@@ -135,165 +134,148 @@ const SCRIPT_PATH = `${process.cwd()}/scripts`
 
     const buildSubtitle = (subtitleText, dialoguesMap) => SUBTITLE_TYPE_MAPPER.builder[getSubtitleType(subtitleText)](subtitleText, dialoguesMap)
 
-
-// =============== Subtitle ===============
-
+// =============== Subtitle Manipulation ===============
 
 
 
 
 
 
+// =============== Files Manipulation / Utils ===============
 
+    const extractSubtitlesFromVideo = async (data) => {  
+        console.info('Executando script de extração de legenda...')  
 
+        const script = `sh ${SCRIPT_PATH}/strExtract.sh ${data.torrent.path} ${SCRIPT_PATH}/bin`
+        await require("child_process").execSync(script)
+        
+        console.info('Execução do script de extração finalizada')
+        return Promise.resolve(data)
+    }
 
-const fixPontuation = (str) => {
-    // return str.replace(/[&\/\\#,+()$~%.'":*?!<>{}]/g, '$& ')
-    //     .replace(/(\.\s){3}/g, '... ')
-    //     .replace(/\?\s\!\s/g, '?! ')
-    //     .replace(/\!\s\?\s/g, '!? ')
-    //     .replace(/\s{2}/g, ' ')
-    //     .replace(/\s+(?=[^{]*\})/g, "")
-    //     .trim()
-    return str
-}
+    const includeSubtitlesIntoVideo = async (data) => {
+        console.info('Executando script de inclusão de legenda...', data.file)  
 
+        const script = `sh ${SCRIPT_PATH}/strJoin.sh ${data.torrent.path} ${SCRIPT_PATH}/bin`
+        await require("child_process").execSync(script)
+        
+        console.info('Execução do script de inclusao finalizada', data.file)
+        return Promise.resolve(data)        
+    }
 
-
-
-
-
-
-
-const extractSubtitles = async (data) => {  
-    console.info('Executando script de de extração de legenda...', data.file)  
-    await require("child_process").execSync(`sh ${SCRIPT_PATH}/strExtract.sh ${data.torrent.path} ${SCRIPT_PATH}/bin`)
-    console.info('Execução do script finalizada', data.file)
-
-    return Promise.resolve(data)
-}
-
-const findFileOnDirRecursive = (dir, filter) => {
-    if (!fs.existsSync(dir)) return
+    const listFilesOnDirRecursive = (dir, filter) => {
+        if (!fs.existsSync(dir)) return
+        
+        const files = fs.readdirSync(dir)
+        const finded = files.map(file => {
+            const filename = path.join(dir,file)
+            const stat = fs.lstatSync(filename)
     
-    const files = fs.readdirSync(dir)
-    const finded = files.map(file => {
-        const filename = path.join(dir,file)
-        const stat = fs.lstatSync(filename)
+            if (stat.isDirectory()){
+                return listFilesOnDirRecursive(filename, filter)
+            } else if (filename.indexOf(filter)>=0) {
+                return filename
+            }
+        }).filter(d => d).flat()
+    
+        return finded
+    }
 
-        if (stat.isDirectory()){
-            return findFileOnDirRecursive(filename, filter)
-        } else if (filename.indexOf(filter)>=0) {
-            return filename
+    const findSubtitleFilesOnDir = (data) => listFilesOnDirRecursive(data.torrent.path, '.srt')
+
+    const parseFileIntoSubtitleMap = (data) => (f) => { return {
+        fileName: path.basename(f), 
+        filePath: path.dirname(f),
+        infoHash: data.torrent.infoHash,
+        magnetURI: data.torrent.magnetURI,
+        fileContent: fs.readFileSync(f, 'utf8')
+    }}
+
+    const getSubtitlesFromFiles = async (data) => {
+        console.info('Obtendo leganda dos arquivos de leganda...')
+    
+        const subtitles = findSubtitleFilesOnDir(data).map(parseFileIntoSubtitleMap(data))
+        data.extraction.subtitles = subtitles
+    
+        return Promise.resolve(data)
+    }
+
+// =============== Files Manipulation / Utils ===============
+
+
+
+
+// =============== Dialogue and Subtitle Translation ===============
+
+    const translateDialogues = async (dialogues, {from, to}) => {
+        console.info(`Efetuando tradução dos dialogos (google-API) (${from || 'en'}-${to})...`)
+
+        const options = {tld: 'cn', from, to}
+
+        const translationResponse = await translate.default(dialogues, options)
+        const content = translationResponse.data[0]
+        const translations = translate.parseMultiple(content)
+        const fixedTranslations = translations.map(s => decode(s))
+
+        return fixedTranslations
+    }
+
+    const translateSubtitleToMultipleLanguages = async (sub, langsTo, from) => {
+        
+        const {fileContent} = sub
+        const {dialoguesLines, dialogues} = loadSubtitle(fileContent)
+
+        if (!dialogues || dialogues.length <= 0) return Promise.resolve(sub)
+
+        const translations = await Promise.all(
+            langsTo
+                .filter(v => v)
+                .map(async (to) => {
+                
+                const translations = await translateDialogues(dialogues, { from, to })
+
+                const dialoguesMap = dialogues.map((original, index) => {
+                    const translated = translations[index]
+                    const line = dialoguesLines[index]
+                    return {line, original, translated, to, index}
+                })
+
+                const editedFileContent = buildSubtitle(fileContent, dialoguesMap)
+
+                return { content: editedFileContent, dialoguesMap, to }
+            })
+        )
+
+        sub.translations = translations        
+        return Promise.resolve(sub)
+    }
+
+    const translateSubtitles = async (data) => {
+        console.info('Começando Tradução das legendas...', data.file)
+
+        const { langsTo, langFrom } = data.extraction
+
+        if (!langsTo || langsTo.length <= 0) {
+            console.info('Nenhuma liguagem para tradução encontrada, tradução abortada...')
+            return Promise.resolve(data)
         }
-    }).filter(d => d).flat()
 
-    return finded
-}
+        const subtitles = await Promise.all(data.extraction.subtitles
+            .map(sub => translateSubtitleToMultipleLanguages(sub, langsTo, langFrom)))
+        
+        data.extraction.subtitles = subtitles
+        
+        console.info('Terminando tradução das legendas...', data.file)
+        return Promise.resolve(data)
+    }
 
-const getSubtitlesFiles = (data) => new Promise((resolve) => {
-    console.info('Obtendo leganda dos arquivos de leganda...', data.file)
-
-    const filesSrt = findFileOnDirRecursive(data.torrent.path, '.srt')
-
-    const subtitles = filesSrt.map(f => {
-        return {
-            fileName: path.basename(f), 
-            filePath: path.dirname(f),
-            infoHash: data.torrent.infoHash,
-            magnetURI: data.torrent.magnetURI,
-            fileContent: fs.readFileSync(f, 'utf8')
-        }
-    })
-
-    data.extraction.subtitles = subtitles
-    resolve(data)
-})
-
-const joinSubtitle = async (data) => {
-    console.info('Executando script de inclusão de legenda...', data.file)  
-    await require("child_process").execSync(`sh ${SCRIPT_PATH}/strJoin.sh ${data.torrent.path} ${SCRIPT_PATH}/bin`)
-    console.info('Execução do script finalizada', data.file)
-    return Promise.resolve(data)
-}
+// =============== Dialogue and Subtitle Translation ===============
 
 
-const translateDialogue = async (dialogues, {from, to}) => {
-
-    console.info('Efetuando tradução dos dialogos (google-API) ...')
-
-    const options = {tld: "cn", from, to}
-
-    // Testing
-    console.time('cached'+to)
-    await translationsService.translateMultiples(dialogues, options)
-    console.timeEnd('cached'+to)
-
-    // Testing
-    console.time('tradução'+to)
-
-    const translationResponse = await translate.default(dialogues, options)
-    const content = translationResponse.data[0]
-    const translations = translate.parseMultiple(content)
-    const fixedTranslations = translations.map(fixPontuation).map(s => decode(s))
-
-    console.timeEnd('tradução'+to)
-
-    return fixedTranslations 
-}
-
-
-
-
-
-const multipleTranslations = async (sub, langsTo, from) => {
-    
-    const {fileContent} = sub
-    const {dialoguesLines, dialogues} = loadSubtitle(fileContent)
-
-    if (!dialogues || dialogues.length <= 0) return Promise.resolve(sub)
-
-    const translationsPromises = langsTo.filter(v => v).map(async (to) => {
-        const languages = { from, to }
-
-        const translations = await translateDialogue(dialogues, languages)
-
-        console.info('Gerando map de dialogos')
-        const dialoguesMap = dialogues.map((original, index) => {
-            const translated = translations[index]
-            const line = dialoguesLines[index]
-            return {line, original, translated, to, index}
-        })
-
-        const editedFileContent = buildSubtitle(fileContent, dialoguesMap)
-
-        return { content: editedFileContent, dialoguesMap, to }
-    })
-
-    const translations = await Promise.all(translationsPromises)
-    
-    return Promise.resolve(Object.assign(sub, { translations }))
-}
-
-
-const translateSubtitle = async (data) => {
-    console.info('Começando Tradução das legendas...', data.file)
-
-    const { langsTo, langFrom } = data.extraction
-    if (!langsTo || langsTo.length <= 0) return Promise.resolve(data)
-
-    const subTranslationsPromises = data.extraction.subtitles.map(sub => multipleTranslations(sub, langsTo, langFrom))
-
-    data.extraction.subtitles = await Promise.all(subTranslationsPromises)
-
-    console.info('Terminando tradução das legendas...', data.file)
-
-    return Promise.resolve(data)
-}
 
 module.exports = {
-    translateSubtitle,
-    extractSubtitles,
-    joinSubtitle,
-    getSubtitlesFiles
+    translateSubtitles,
+    extractSubtitlesFromVideo,
+    includeSubtitlesIntoVideo,
+    getSubtitlesFromFiles
 }
