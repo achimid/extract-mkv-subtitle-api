@@ -24,7 +24,7 @@ const hideStatus = () => $status.classList.add('hidden')
 function sendExtraction() {
     const body = {
         magnetLink: $magnetLink.value, 
-        ignoreCache: !$useCache.checked,
+        ignoreCache: (!$useCache.checked).toString(),
         langsTo: [$langTo.value]
     }
     
