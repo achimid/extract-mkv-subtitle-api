@@ -71,6 +71,7 @@ const SCRIPT_PATH = `${process.cwd()}/scripts`
 
 
 
+
 // =============== SRT (SubRip) Subtitle ===============
 
     const loadSubtitleSRT = (subtitleText) => {
@@ -78,8 +79,8 @@ const SCRIPT_PATH = `${process.cwd()}/scripts`
 
         const mapedSubtitle = subtitleText.split(LINE_SEPARATOR_DOUBLE).map(l => l.split(LINE_SEPARATOR))
         
-        const dialoguesLines = mapedSubtitle.map(block => block.join(LINE_SEPARATOR_DOUBLE))
-        const dialogues = dialoguesLines
+        const dialoguesLines = mapedSubtitle.map(block => block.join(LINE_SEPARATOR))
+        const dialogues = mapedSubtitle
             .map(block => block
                 .map((line, index) => { return index > 1 ? line : null} ))
             .flat()
@@ -94,10 +95,8 @@ const SCRIPT_PATH = `${process.cwd()}/scripts`
     
         const lines = subtitleText.split(LINE_SEPARATOR)
         const replacedLines = lines.map(line => {
-            const finded = dialoguesMap.filter(m => m.line === line)
-            if (finded.length <= 0) return line
-
-            return setDialogueColumnSSA(finded[0].translated, finded[0].line)
+            const finded = dialoguesMap.filter(m => m.original === line)
+            return finded.length <= 0 ? line : finded[0].translated || finded[0].original
         })
 
         return replacedLines.join(LINE_SEPARATOR)
@@ -105,10 +104,33 @@ const SCRIPT_PATH = `${process.cwd()}/scripts`
 
 // =============== SRT (SubRip) Subtitle ===============
 
-// To use
-const getSrtDialogues = (content) => {
-    return content.split('\n\n').map(l => l.split('\n'))
+
+
+const SUBTITLE_TYPE_MAPPER = {
+    loader: {
+        ssa: loadSubtitleSSA,
+        srt: loadSubtitleSRT
+    },
+    builder: {
+        ssa: buildSubtitleSSA,
+        srt: buildSubtitleSRT
+    }
 }
+
+const getSubtitleType = (subtitleText) => {
+    if (subtitleText.indexOf('﻿[Script Info]') == 0) {
+        return 'ssa'
+    } else if (subtitleText.indexOf('-->') > 0) {
+        return 'srt'
+    }
+    return 'default'
+}
+
+const loadSubtitle = (subtitleText) => SUBTITLE_TYPE_MAPPER.loader[getSubtitleType(subtitleText)](subtitleText)
+
+const buildSubtitle = (subtitleText, dialoguesMap) => SUBTITLE_TYPE_MAPPER.builder[getSubtitleType(subtitleText)](subtitleText, dialoguesMap)
+
+
 
 
 
@@ -215,9 +237,9 @@ const translateDialogue = async (dialogues, {from, to}) => {
 
 
 const multipleTranslations = async (sub, langsTo, from) => {
+    
     const {fileContent} = sub
-
-    const {dialoguesLines, dialogues} = loadSubtitleSSA(fileContent)
+    const {dialoguesLines, dialogues} = loadSubtitle(fileContent)
 
     if (!dialogues || dialogues.length <= 0) return Promise.resolve(sub)
 
@@ -233,7 +255,7 @@ const multipleTranslations = async (sub, langsTo, from) => {
             return {line, original, translated, to, index}
         })
 
-        const editedFileContent = buildSubtitleSSA(fileContent, dialoguesMap)
+        const editedFileContent = buildSubtitle(fileContent, dialoguesMap)
 
         return { content: editedFileContent, dialoguesMap, to }
     })
