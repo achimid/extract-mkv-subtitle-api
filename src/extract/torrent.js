@@ -7,6 +7,8 @@ const client = new WebTorrent({ maxConns: 200 })
 const utils = require('./utils')
 const { notifySocket } = require('../socket/socket-events')
 
+const sharingTime = process.env.LET_TORRENT_SHARING
+
 const startDownload = (data) => new Promise((resolve) => {
     if (!data.extraction.magnetLink) return
 
@@ -32,14 +34,26 @@ const moveFileFromFileSystem = (data) => new Promise((resolve, reject) => {
 })
 
 const removeTorrentFromClient = (data) => new Promise((resolve, reject) => {
-    console.info('Removendo torrent do downloader...')
-    data.client.remove(data.torrent.infoHash, (err) => err ?  reject(err) : resolve(data))
+    console.info('Removendo torrent do downloader...', sharingTime)
+    
+    if (!sharingTime) {
+        data.client.remove(data.torrent.infoHash, (err) => err ?  reject(err) : resolve(data))
+    } else {
+        setTimeout(() => data.client.remove(data.torrent.infoHash), sharingTime)
+        resolve(data)
+    }
 })
 
 const removeFileFromFileSystem = (data) => new Promise((resolve, reject) => {
     if (process.env.DELETE_FILE == 'false') return resolve(data)
-    console.info('Removendo arquivos...')
-    rimraf(data.torrent.path, (err) => err ?  reject(err) : resolve(data))
+    console.info('Removendo arquivos...', sharingTime)
+    
+    if (!sharingTime) {
+        rimraf(data.torrent.path, (err) => err ?  reject(err) : resolve(data))
+    } else {
+        setTimeout(() => rimraf(data.torrent.path), sharingTime)
+        resolve(data)
+    }
 })
 
 const whenTorrentDone = (data) => new Promise((resolve, reject) => {
@@ -118,7 +132,7 @@ const onFinishDownload = async (data) => {
 }
 
 const stopProgressLog = async (data) => {
-    clearInterval(data.progressLog);
+    clearInterval(data.progressLog)
     delete data.progressLog
     return Promise.resolve(data)
 }

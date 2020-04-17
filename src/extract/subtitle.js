@@ -6,18 +6,146 @@ const decode = require('unescape')
 const translationsService = require('../translation/translation-service')
 
 const LINE_SEPARATOR = os.EOL
+const LINE_SEPARATOR_DOUBLE = LINE_SEPARATOR + LINE_SEPARATOR
 const SCRIPT_PATH = `${process.cwd()}/scripts`
-const SUBTITLE_PART = 9
 
-const REGEX_REMOVE = [
-    {old: '\\N', neww: ' '},
-    {old: '\\i0}', neww: ''},
-    {old: '{\\i1}', neww: ''},
-    // {old: '<i>', neww: ''},
-    // {old: '</i>', neww: ''},
-    // {old: '<b>', neww: ''},
-    // {old: '</b>', neww: ''},
-]
+
+
+
+
+// =============== SSA/ASS Subtitle ===============
+    
+    const SUBTITLE_PART = 9
+    const REGEX_ESPECIAL_CHAR_TO_REMOVE = [
+        {old: '\\N', neww: ' '},
+        {old: '\\i0}', neww: ''},
+        {old: '{\\i1}', neww: ''}
+    ]
+
+    const removeEspecialChars = (d) => {
+        let value = d
+        for (const rg of REGEX_ESPECIAL_CHAR_TO_REMOVE) { value = value.split(rg.old).join(rg.neww) }
+        return value
+    }
+
+    const getDialogueColumnSSA = (dialogueLine) => {
+        const cols = dialogueLine.split(',')    
+        if (cols === -1) return dialogueLine
+                
+        return cols.splice(SUBTITLE_PART, cols.length).join(',')
+    }
+
+
+    const setDialogueColumnSSA = (newPart, string) => {
+        const parts = string.split(',')    
+        if (parts === -1) return string
+        
+        return parts.splice(0, SUBTITLE_PART).join(',') + ',' + newPart
+    }
+
+    const loadSubtitleSSA = (subtitleText) => {
+        console.info('Extraindo dialogos do arquivo formatado (SSA/ASS)...')
+
+        const lines = subtitleText.split(LINE_SEPARATOR)
+        const dialoguesLines = lines.filter(l => l.indexOf('Dialogue') == 0)
+        const dialogues = dialoguesLines.map(getDialogueColumnSSA).map(removeEspecialChars)
+        
+        return {dialoguesLines, dialogues}
+    }
+
+    const buildSubtitleSSA = (subtitleText, dialoguesMap) => {
+        console.info('Efetuando edição do arquivo original de legandas (SSA/ASS)...')
+    
+        const lines = subtitleText.split(LINE_SEPARATOR)
+        const replacedLines = lines.map(line => {
+            const finded = dialoguesMap.filter(m => m.line === line)
+            if (finded.length <= 0) return line
+
+            return setDialogueColumnSSA(finded[0].translated, finded[0].line)
+        })
+
+        return replacedLines.join(LINE_SEPARATOR)
+    }
+
+// =============== SSA/ASS Subtitle ===============
+
+
+
+
+
+// =============== SRT (SubRip) Subtitle ===============
+
+    const loadSubtitleSRT = (subtitleText) => {
+        console.info('Extraindo dialogos do arquivo formatado (SRT)...')
+
+        const mapedSubtitle = subtitleText.split(LINE_SEPARATOR_DOUBLE).map(l => l.split(LINE_SEPARATOR))
+        
+        const dialoguesLines = mapedSubtitle.map(block => block.join(LINE_SEPARATOR))
+        const dialogues = mapedSubtitle
+            .map(block => block
+                .map((line, index) => { return index > 1 ? line : null} ))
+            .flat()
+            .filter(v => v)
+        
+        
+        return {dialoguesLines, dialogues}
+    }
+
+    const buildSubtitleSRT = (subtitleText, dialoguesMap) => {
+        console.info('Efetuando edição do arquivo original de legandas (SRT)...')
+    
+        const lines = subtitleText.split(LINE_SEPARATOR)
+        const replacedLines = lines.map(line => {
+            const finded = dialoguesMap.filter(m => m.original === line)
+            return finded.length <= 0 ? line : finded[0].translated || finded[0].original
+        })
+
+        return replacedLines.join(LINE_SEPARATOR)
+    }
+
+// =============== SRT (SubRip) Subtitle ===============
+
+
+
+
+// =============== Subtitle ===============
+
+
+    const SUBTITLE_TYPE_MAPPER = {
+        loader: {
+            ssa: loadSubtitleSSA,
+            srt: loadSubtitleSRT
+        },
+        builder: {
+            ssa: buildSubtitleSSA,
+            srt: buildSubtitleSRT
+        }
+    }
+
+    const getSubtitleType = (subtitleText) => {
+        if (subtitleText.indexOf('﻿[Script Info]') == 0) {
+            return 'ssa'
+        } else if (subtitleText.indexOf('-->') > 0) {
+            return 'srt'
+        }
+        return 'default'
+    }
+
+    const loadSubtitle = (subtitleText) => SUBTITLE_TYPE_MAPPER.loader[getSubtitleType(subtitleText)](subtitleText)
+
+    const buildSubtitle = (subtitleText, dialoguesMap) => SUBTITLE_TYPE_MAPPER.builder[getSubtitleType(subtitleText)](subtitleText, dialoguesMap)
+
+
+// =============== Subtitle ===============
+
+
+
+
+
+
+
+
+
 
 const fixPontuation = (str) => {
     // return str.replace(/[&\/\\#,+()$~%.'":*?!<>{}]/g, '$& ')
@@ -30,31 +158,11 @@ const fixPontuation = (str) => {
     return str
 }
 
-const replaceEspecialChars = (d) => {
-    let value = d
-    for (const rg of REGEX_REMOVE) { value = value.split(rg.old).join(rg.neww) }
-    return value
-}
 
-const replaceLastPart = (newPart, string) => {
-    const parts = string.split(',')
 
-    if (parts === -1)
-        return string
-        
-    const primeiraPart = parts.splice(0, SUBTITLE_PART).join(',')
-    return primeiraPart + ',' + newPart
-}
 
-const getLastPart = (string) => {
-    const parts = string.split(',')
 
-    if (parts === -1)
-        return string
-    
-    let ultimaPart = parts.splice(SUBTITLE_PART, parts.length).join(',')
-    return ultimaPart
-}
+
 
 
 const extractSubtitles = async (data) => {  
@@ -109,20 +217,6 @@ const joinSubtitle = async (data) => {
     return Promise.resolve(data)
 }
 
-const getSSADialogues = (lines) => {
-
-    console.info('Extraindo dialogos do arquivo formadato...')
-    
-    const dialoguesLines = lines.filter(l => l.indexOf('Dialogue') == 0)
-    const dialogues = dialoguesLines.map(getLastPart).map(replaceEspecialChars)
-    
-    return {dialoguesLines, dialogues}
-}
-
-// To use
-const getSrtDialogues = (content) => {
-    return content.split('\n\n').map(l => l.split('\n'))
-}
 
 const translateDialogue = async (dialogues, {from, to}) => {
 
@@ -149,30 +243,17 @@ const translateDialogue = async (dialogues, {from, to}) => {
 }
 
 
-const getEditedFileContent = (lines, dialoguesMap) => {
-    console.info('Efetuando edição do arquivo original de legandas...')
 
-    return lines.map(line => {
-        const finded = dialoguesMap.filter(m => m.line === line)
-        const hasLineTranslated = finded.length > 0
-
-        if (!hasLineTranslated) return line
-        
-        const firstTranslation = finded[0]
-        return replaceLastPart(firstTranslation.translated, firstTranslation.line)
-    })
-}
 
 
 const multipleTranslations = async (sub, langsTo, from) => {
+    
     const {fileContent} = sub
-    const lines = fileContent.split(LINE_SEPARATOR)
-    // const lines = fileContent.split('\\n')
-    const {dialoguesLines, dialogues} = getSSADialogues(lines)
+    const {dialoguesLines, dialogues} = loadSubtitle(fileContent)
 
     if (!dialogues || dialogues.length <= 0) return Promise.resolve(sub)
 
-    const translationsPromises = langsTo.map(async (to) => {
+    const translationsPromises = langsTo.filter(v => v).map(async (to) => {
         const languages = { from, to }
 
         const translations = await translateDialogue(dialogues, languages)
@@ -184,7 +265,7 @@ const multipleTranslations = async (sub, langsTo, from) => {
             return {line, original, translated, to, index}
         })
 
-        const editedFileContent = getEditedFileContent(lines, dialoguesMap).join(LINE_SEPARATOR)
+        const editedFileContent = buildSubtitle(fileContent, dialoguesMap)
 
         return { content: editedFileContent, dialoguesMap, to }
     })

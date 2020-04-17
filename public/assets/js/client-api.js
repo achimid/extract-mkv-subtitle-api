@@ -78,12 +78,9 @@ const onResponseExtraction = (extraction) => {
 const createSubtitlesDownload = (extraction) => {
     if (notHasSubtitles(extraction)) return
 
-    extraction.subtitles.map(({fileName, fileContent, fileContentTranslated}) => {
+    extraction.subtitles.map(({fileName, fileContent, translations}) => {
         createDownloadButton(fileName, fileContent)
-        if (fileContentTranslated) {
-            const fileNameTranslated = fileName.replace('.srt', `.${extraction.langTo}.srt`)
-            createDownloadButton(fileNameTranslated, fileContentTranslated)
-        }
+        translations.map(({content, to}) => createDownloadButton(fileName.replace('.srt', `.${to}.srt`), content))        
     })
 }
 
