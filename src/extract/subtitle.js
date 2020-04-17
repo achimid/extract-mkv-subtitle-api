@@ -72,6 +72,7 @@ const SCRIPT_PATH = `${process.cwd()}/scripts`
 
 
 
+
 // =============== SRT (SubRip) Subtitle ===============
 
     const loadSubtitleSRT = (subtitleText) => {
@@ -106,29 +107,38 @@ const SCRIPT_PATH = `${process.cwd()}/scripts`
 
 
 
-const SUBTITLE_TYPE_MAPPER = {
-    loader: {
-        ssa: loadSubtitleSSA,
-        srt: loadSubtitleSRT
-    },
-    builder: {
-        ssa: buildSubtitleSSA,
-        srt: buildSubtitleSRT
+
+// =============== Subtitle ===============
+
+
+    const SUBTITLE_TYPE_MAPPER = {
+        loader: {
+            ssa: loadSubtitleSSA,
+            srt: loadSubtitleSRT
+        },
+        builder: {
+            ssa: buildSubtitleSSA,
+            srt: buildSubtitleSRT
+        }
     }
-}
 
-const getSubtitleType = (subtitleText) => {
-    if (subtitleText.indexOf('﻿[Script Info]') == 0) {
-        return 'ssa'
-    } else if (subtitleText.indexOf('-->') > 0) {
-        return 'srt'
+    const getSubtitleType = (subtitleText) => {
+        if (subtitleText.indexOf('﻿[Script Info]') == 0) {
+            return 'ssa'
+        } else if (subtitleText.indexOf('-->') > 0) {
+            return 'srt'
+        }
+        return 'default'
     }
-    return 'default'
-}
 
-const loadSubtitle = (subtitleText) => SUBTITLE_TYPE_MAPPER.loader[getSubtitleType(subtitleText)](subtitleText)
+    const loadSubtitle = (subtitleText) => SUBTITLE_TYPE_MAPPER.loader[getSubtitleType(subtitleText)](subtitleText)
 
-const buildSubtitle = (subtitleText, dialoguesMap) => SUBTITLE_TYPE_MAPPER.builder[getSubtitleType(subtitleText)](subtitleText, dialoguesMap)
+    const buildSubtitle = (subtitleText, dialoguesMap) => SUBTITLE_TYPE_MAPPER.builder[getSubtitleType(subtitleText)](subtitleText, dialoguesMap)
+
+
+// =============== Subtitle ===============
+
+
 
 
 
@@ -243,7 +253,7 @@ const multipleTranslations = async (sub, langsTo, from) => {
 
     if (!dialogues || dialogues.length <= 0) return Promise.resolve(sub)
 
-    const translationsPromises = langsTo.map(async (to) => {
+    const translationsPromises = langsTo.filter(v => v).map(async (to) => {
         const languages = { from, to }
 
         const translations = await translateDialogue(dialogues, languages)
