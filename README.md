@@ -211,7 +211,7 @@ Como uma melhor extratégia de utilização do serviço, de preferência a utili
         }
     }
 
-#### Possible Languages
+### Possible Languages
     {
         'af': 'Afrikaans',
         'sq': 'Albanian',
@@ -320,7 +320,7 @@ Como uma melhor extratégia de utilização do serviço, de preferência a utili
     }
 
 
-#### TODOs
+### TODOs
 
 * Implementar a união das legendas traduzidas diretamente no arquivo e fornecer para download
 * Possibilitar a extração de outros formatos de video alem de MKV
