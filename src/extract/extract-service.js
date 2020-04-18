@@ -1,7 +1,6 @@
 const Extraction = require('./extract-model')
 const subtitle = require('./subtitle')
 const torrent = require('./torrent')
-const translation = require('../translation/translation-service')
 const { notifySocket } = require('../socket/socket-events')
 
 const startExtraction = (data) => {

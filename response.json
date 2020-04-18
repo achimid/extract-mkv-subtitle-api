@@ -20,7 +20,8 @@
                         }
                     ],
                     "_id": "5e97350fa332a5634daadf0a",
-                    "to": "pt"
+                    "to": "pt",
+                    "content": "Ola..."
                 },
                 {
                     "dialoguesMap": [
@@ -34,7 +35,8 @@
                         }
                     ],
                     "_id": "5e97350fa332a5634daae0af",
-                    "to": "es"
+                    "to": "es",
+                    "content": "Hola..."
                 }
             ],
             "_id": "5e97350ea332a5634daadf09",
