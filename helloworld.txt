@@ -1,0 +1,8 @@
+Então agora o irmão Helmut também se casou com um cavaleiro.
+Foi assim também para vocês dois, certo?
+A única razão pela qual alguém gostaria de se casar conosco é se tornar seu parente, honestamente.
+Não, tenho certeza de que esse não é o único motivo.
+Você precisa tomar uma decisão sobre o torneio \\N em breve, ou ficará envergonhado.
+{\fscx200 \fscy110 \clip (186,293,451,299) \pos (320,330) \c & H32A6DD & \fad (396,1)} O 8º Filho? \\N {\fs10 \c & H32A6DD &} Você está brincando comigo?
+{\fscx200 \fscy110 \clip (186.299.451.305) \pos (320.330) \c & H3194C8 & \fad (396,1)} O 8º Filho? \\N {\fs10 \c & H3194C8 &} Você está brincando comigo?
+

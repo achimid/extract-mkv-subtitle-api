@@ -17,11 +17,19 @@
   },
   "homepage": "https://github.com/achimid/extract-mkv-subtitle-api#readme",
   "dependencies": {
-    "compression": "^1.7.4",
+    "@hapi/joi": "^17.1.1",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "google-translate-open-api": "^1.3.2",
+    "mongoose": "^5.9.6",
+    "mv": "^2.1.1",
     "node-cron": "^2.0.3",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0",
+    "unescape": "^1.0.1",
+    "webtorrent": "^0.107.17",
+    "word-wrap": "^1.2.3"
   }
 }

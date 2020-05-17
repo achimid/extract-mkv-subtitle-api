@@ -1,19 +1,24 @@
 require('dotenv').config()
-
-const maxAge = process.env.NODE_ENV == 'production' ? 7*86400000 : 0
-
 const express = require('express')
-const compression = require('compression')
 const cors = require('cors')
+const databaseInit = require('./config/database')
+const { registerSocketEvents } = require('./socket/socket-events')
 
 const app = express()
 
-app.use(cors())
-app.use(compression())
+const server = require('http').createServer(app)
+const io = require('socket.io')(server)
+global.socket = io
+
 app.use(express.json())
+app.use(cors())
 app.disable('x-powered-by')
 
-app.use(express.static('public', { maxAge, extensions:['html'] }))
 app.use('/api/v1/healthcheck', require('./healthcheck/healthcheck'))
+app.use('/api/v1/extract', require('./extract/extract-controller'))
+app.use(express.static('public'));
 
-app.listen(process.env.PORT)
+databaseInit()
+registerSocketEvents(io)
+
+server.listen(process.env.PORT)
