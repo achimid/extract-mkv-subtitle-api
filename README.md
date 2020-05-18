@@ -331,21 +331,10 @@ Como uma melhor extratégia de utilização do serviço, de preferência a utili
 * Melhorar o tratamento de erro da API
 
 # MkvExtractor
-* Criar contas de produção (3 contas no minimo) (Em localizações distintas)
-* Criar uma conta para o loadBalancer e adicionar um loadbalancer para a aplicação
-* Criar banco de dados da aplicação PRD
-* Alterar o dominio ddns, para apontar para o loadBalancer
-* Melhorar algumas funcionalidades do loadBalancer
 * Remover a parte do ajuste das traduções das legendas. (Colocar na api do HorribleSubs ou criar uma API para traduções.)
 
 # API de Tradução de Legendas...
 * Criar uma API que recebe um arquivo de legenda e revolve outro arquivo traduzido, como o MKVExtractor realiza, mas criar uma api para externalizar isso
 * Postar no openSubtitle automaticamente
-
-# HorribleSubCommunity
-* Mudar o nome para AutoMagicFansub (AMF)
-* Verificar se o dominio esta disponivel
-* Comprar o dominio
-* Implementar correções de legenda de uma maneira hierarquica, porque as correções dependen da linguagem, usa uma factory...
 
 Criar a API de Multiplos acessos ao banco de dados, nos inserts, pode utilizar o Promise.Race, ja no Find, utilizar o Promisse.All (ou até mesmo a nova versão do promise.all)
