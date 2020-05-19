@@ -1,5 +1,5 @@
 const SERVER_URL = 'http://extractmkvsubtitle.ddns.net'
-// const SERVER_URL = 'http://localhost:9001'
+// const SERVER_URL = 'http://localhost:9003'
 
 
 const $dlwSpeed = document.querySelector("#dlw-speed")

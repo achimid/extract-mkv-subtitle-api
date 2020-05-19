@@ -9,8 +9,7 @@ router.post('/', validate, async (req, res) => {
     const extraction = {magnetLink, langsTo, langFrom, ignoreCache}
 
     service.saveOrGetExtraction({ extraction })
-        .then((data) => { res.json(data.extraction); return data;})
-        .then((data) => service.startExtraction(data))        
+        .then((data) => { res.json(data.extraction) })        
 
 })
 

@@ -1,12 +1,16 @@
 const Extraction = require('./extract-model')
 const subtitle = require('./subtitle')
 const torrent = require('./torrent')
+const kue = require('kue')
 const { notifySocket } = require('../socket/socket-events')
 
-const startExtraction = (data) => {
-    if (data.extraction.isCached) return
+const executionJobs = kue.createQueue({ redis: process.env.REDIS_CONNECTION})
+const EXTRACT_EVENT = 'extract'
 
-    return torrent.startDownload(data)
+// Executando JOB de extraction
+executionJobs.process(EXTRACT_EVENT, process.env.JOB_CONCURRENCY, async (job, done) => {
+    const extraction = await Extraction.findById(job.data.extractionId)
+    return torrent.startDownload({ extraction })
         .then(subtitle.extractSubtitlesFromVideo)
         .then(subtitle.getSubtitlesFromFiles)
         .then(subtitle.translateSubtitles)
@@ -14,7 +18,10 @@ const startExtraction = (data) => {
         .then(torrent.removeTorrentFromClient)
         .then(torrent.removeFileFromFileSystem)
         .then(notifyClientDone)
-}
+        .catch((err) => console.error('Erro de execução: ', err))
+        .finally(done)
+    
+})
 
 const findExtraction = (data) => {
     if (data.extraction.ignoreCache != 'false') return data.extraction
@@ -49,6 +56,9 @@ const saveOrGetExtraction = async (data) => {
     if (!extraction.isCached) {
         if (!extraction.id) extraction = new Extraction(extraction)
         extraction.save()
+
+        // Adicionando execução na fila de Job, para processamento paralelo controlado
+        executionJobs.create(EXTRACT_EVENT, {extractionId: extraction.id}).removeOnComplete(true).save()
     }
 
     return Object.assign(data, { extraction })
@@ -64,8 +74,7 @@ const notifyClientDone = async (data) => {
     notifySocket(data.extraction.id, { body: data.extraction, status: 'DONE' })
 }
 
-module.exports = {
-    startExtraction,
+module.exports = { 
     saveOrGetExtraction,
     findById
 }
