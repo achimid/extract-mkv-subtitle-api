@@ -3,23 +3,12 @@ const path = require('path');
 const translate = require('google-translate-open-api')
 const os = require('os')
 const decode = require('unescape')
-const wrap = require('word-wrap')
+
+const replacement = require('./replacement/common')
 
 const LINE_SEPARATOR = os.EOL
 const LINE_SEPARATOR_DOUBLE = LINE_SEPARATOR + LINE_SEPARATOR
 const SCRIPT_PATH = `${process.cwd()}/scripts`
-
-const CHAR_TMP = '#'
-const TAG_REGEX = /\{(.*?)\}/g
-
-const REGEX_REPLACE_POST_TRANSLATION = [
-    {old: '\\\\ ', neww: '\\'}
-]
-
-const REGEX_REPLACE_PRE_TRANSLATION = [
-    {old: '\N', neww: '\N '},
-]
-
 
 
 // =============== SSA/ASS Subtitle ===============
@@ -205,25 +194,26 @@ const REGEX_REPLACE_PRE_TRANSLATION = [
 
 // =============== Dialogue and Subtitle Translation ===============
 
-    const translateDialogues = async (dialogues, {from, to}) => {
+    const translateDialogues = async (originalDialogues, {from, to}) => {
         console.info(`Efetuando tradução dos dialogos (google-API) (${from || 'en'}-${to})...`)
 
         const options = {tld: 'cn', from, to}
 
-        const dialogueReplaced = dialogues.map(replacePreTranslation)
-        const tagDict = getTagsDict(dialogueReplaced)
-        const dialoguesTagless = replaceTagToKey(tagDict, dialogueReplaced)
+        let dialogues = originalDialogues                
+        const tagDict = replacement.getTagsDict(dialogues)
+        
+        dialogues = replacement.replacePreTranslations(dialogues)
+        dialogues = replacement.replaceTagToKey(tagDict, dialogues)
 
-        const translationResponse = await translate.default(dialoguesTagless, options)
+        const translationResponse = await translate.default(dialogues, options)
         const content = translationResponse.data[0]
         const translations = translate.parseMultiple(content)
         const fixedTranslations = translations.map(s => decode(s))
         
-        
-        const fixedTranslationsTagged = replaceKeyToTag(tagDict, fixedTranslations)
-        const translationsReplaced = fixedTranslationsTagged.map(replacePostTranslation)
+        dialogues = replacement.replaceKeyToTag(tagDict, fixedTranslations)
+        dialogues = replacement.replacePostTranslations(dialogues)
 
-        return translationsReplaced
+        return dialogues
     }
 
     const translateSubtitleToMultipleLanguages = async (sub, langsTo, from) => {
@@ -275,64 +265,7 @@ const REGEX_REPLACE_PRE_TRANSLATION = [
         return Promise.resolve(data)
     }
 
-    const replacePostTranslation = (dialogue) => {
-        let tmp =  dialogue
-        REGEX_REPLACE_POST_TRANSLATION.map(reg => {
-            tmp = tmp.replace(new RegExp(reg.old, 'g'), reg.neww)
-        })
-        return tmp        
-    }
-
-    const replacePreTranslation = (dialogue) => {
-        let tmp =  dialogue
-        REGEX_REPLACE_PRE_TRANSLATION.map(reg => {
-            tmp = tmp.replace(new RegExp(reg.old, 'g'), reg.neww)
-        })
-        return tmp        
-    }    
-
 // =============== Dialogue and Subtitle Translation ===============
-
-
-// =============== Subtitle Tags Handler ===============
-    const getTags = (dialogues) => {
-        return [ '\\\\N', ...(new Set(dialogues.map(text => {
-            const tags = text.match(TAG_REGEX)
-            return tags ? [...text.match(TAG_REGEX)] : []
-        }).flat()))]
-    }
-
-    const getTagsDict = (dialogues) => {
-        const tags = getTags(dialogues)
-        let size = tags.length
-        const dict = tags.map((tag, index) => { 
-            const tmp = CHAR_TMP.repeat(size - index)
-            return { tag, tmp}
-        })
-        return dict
-    }
-
-    const replaceTagToKey = (dict, dialogues) => {
-        return dialogues.map(text => {
-            let ret = text
-            dict.map(({tag, tmp}) => {
-                ret = ret.replace(new RegExp(tag, 'g'), tmp)
-            })
-            return ret
-        })
-    }
-
-    const replaceKeyToTag = (dict, dialogues) => {
-        return dialogues.map(text => {
-            let ret = text
-            dict.map(({tag, tmp}) => {
-                ret = ret.replace(new RegExp(tmp, 'g'), tag)
-            })
-            return ret
-        })
-    }
-
-// =============== Subtitle Tags Handler ===============
 
 
 module.exports = {
