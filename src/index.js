@@ -23,7 +23,7 @@ registerSocketEvents(io)
 setInterval(() => {    
     console.log('>>>>>>>>>>>>>>> Memória Heap: ', process.memoryUsage().heapUsed / 1024 / 1024)
     console.log('>>>>>>>>>>>>>>> Memória Total: ', process.memoryUsage().heapTotal / 1024 / 1024)
-}, 1000)
+}, 3000)
 
 
 server.listen(process.env.PORT)
