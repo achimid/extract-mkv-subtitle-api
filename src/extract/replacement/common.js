@@ -5,19 +5,39 @@ const TAG_REGEX = /\{(.*?)\}/gi
 
 
 const REGEX_REPLACE_POST_TRANSLATION = [
-    {old: '\\\\\\\\', neww: '\\'}
+    {old: '\\\\\\\\', neww: '\\'},
+    {old: '# #', neww: '##'},
+    {old: escapeStringRegexp('. . . '), neww: '... '},
+    {old: escapeStringRegexp(' ...'), neww: '...'},
+    {old: escapeStringRegexp('...'), neww: '... '},
+    {old: escapeStringRegexp('...  '), neww: '... '},
+    {old: escapeStringRegexp('! ?'), neww: '!?'},
+    {old: escapeStringRegexp('? !'), neww: '?!'},
 ]
 
 const REGEX_REPLACE_PRE_TRANSLATION = [
-    // {old: '\N', neww: '\N '},
+    // {old: '# #', neww: '##'},
 ]
 
 const replacePostTranslations = (dialogues) => dialogues.map(aplyRegexPostTranslation)
 
 const aplyRegexPostTranslation = (dialogue) => {
     let tmp =  dialogue
+
+    // Adicionando espaço depois de caracteres especiais
+    var separators = [',', '.',  ':', '?', '!'];
+
+    for (let i = 0; i < separators.length; i++) { 
+        tmp = tmp.replace(new RegExp(escapeStringRegexp(separators[i]), "g"),separators[i] + " ")
+    }
+
+    for (let i = 0; i < separators.length; i++) { 
+        tmp = tmp.replace(new RegExp(escapeStringRegexp(separators[i] + '  '), "g"),separators[i] + " ")
+    }
     REGEX_REPLACE_POST_TRANSLATION.map(reg => { tmp = tmp.replace(new RegExp(reg.old, 'gi'), reg.neww) })
-    return tmp        
+    
+    
+    return tmp.trim()
 }
 
 const replacePreTranslations = (dialogues) => dialogues.map(aplyRegexPreTranslation)
@@ -40,9 +60,8 @@ const getTags = (dialogues) => {
 
 const getTagsDict = (dialogues) => {
     const tags = getTags(dialogues)
-    let size = tags.length
     const dict = tags.map((tag, index) => { 
-        const tmp = CHAR_TMP.repeat(size - index)
+        const tmp = CHAR_TMP.repeat(index +1)
         return { tag, tmp: `"${tmp}"`}
     })
     return dict

@@ -199,19 +199,29 @@ const SCRIPT_PATH = `${process.cwd()}/scripts`
 
         const options = {tld: 'cn', from, to}
 
-        let dialogues = originalDialogues                
+
+        let dialogues = originalDialogues
+        
         const tagDict = replacement.getTagsDict(dialogues)
         
         dialogues = replacement.replacePreTranslations(dialogues)
+        // console.log(dialogues, ' <-- PreTranslations')
+
         dialogues = replacement.replaceTagToKey(tagDict, dialogues)
+        // console.log(dialogues, ' <-- Replaced Tag')
+        
 
         const translationResponse = await translate.default(dialogues, options)
         const content = translationResponse.data[0]
         const translations = translate.parseMultiple(content)
-        const fixedTranslations = translations.map(s => decode(s))
+        dialogues = translations.map(s => decode(s))
+        // console.log(dialogues, ' <-- Translated')
         
-        dialogues = replacement.replaceKeyToTag(tagDict, fixedTranslations)
         dialogues = replacement.replacePostTranslations(dialogues)
+        console.log(dialogues, ' <-- PostTranslations')
+
+        dialogues = replacement.replaceKeyToTag(tagDict, dialogues)
+        console.log(dialogues, ' <-- ReSet Tag')
 
         return dialogues
     }

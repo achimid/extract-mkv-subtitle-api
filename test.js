@@ -10,24 +10,24 @@ const main = async () => {
     const lines = fs.readFileSync('./00-original.txt', {encoding:'utf8', flag:'r'}).split(os.EOL)
     
     let dialogues = lines
-    console.log(dialogues, ' <-- Original')
+    // console.log(dialogues, ' <-- Original')
     
-    const tagDict = replacement.getTagsDict(dialogues)
+    // const tagDict = replacement.getTagsDict(dialogues)
     
-    dialogues = replacement.replacePreTranslations(dialogues)
-    console.log(dialogues, ' <-- PreTranslations')
+    // dialogues = replacement.replacePreTranslations(dialogues)
+    // console.log(dialogues, ' <-- PreTranslations')
 
-    dialogues = replacement.replaceTagToKey(tagDict, dialogues)
-    console.log(dialogues, ' <-- Replaced Tag')
+    // dialogues = replacement.replaceTagToKey(tagDict, dialogues)
+    // console.log(dialogues, ' <-- Replaced Tag')
 
     dialogues = await translateDialogues(dialogues, options)
     console.log(dialogues, ' <-- Translated')
     
-    dialogues = replacement.replaceKeyToTag(tagDict, dialogues)
-    console.log(dialogues, ' <-- ReSet Tag')
+    // dialogues = replacement.replaceKeyToTag(tagDict, dialogues)
+    // console.log(dialogues, ' <-- ReSet Tag')
 
-    dialogues = replacement.replacePostTranslations(dialogues)
-    console.log(dialogues, ' <-- PostTranslations')
+    // dialogues = replacement.replacePostTranslations(dialogues)
+    // console.log(dialogues, ' <-- PostTranslations')
     
 
     fs.writeFile('./00-translated.txt', dialogues.join(os.EOL), () => {})
