@@ -58,7 +58,11 @@ const saveOrGetExtraction = async (data) => {
         extraction.save()
 
         // Adicionando execução na fila de Job, para processamento paralelo controlado
-        executionJobs.create(EXTRACT_EVENT, {extractionId: extraction.id}).removeOnComplete(true).save()
+        executionJobs
+            .create(EXTRACT_EVENT, {extractionId: extraction.id})
+            .removeOnComplete(true)
+            .attempts(5)
+            .save()
     }
 
     return Object.assign(data, { extraction })

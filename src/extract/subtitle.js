@@ -214,8 +214,6 @@ const REGEX_REPLACE_PRE_TRANSLATION = [
         const tagDict = getTagsDict(dialogueReplaced)
         const dialoguesTagless = replaceTagToKey(tagDict, dialogueReplaced)
 
-        console.log(dialoguesTagless[0])
-
         const translationResponse = await translate.default(dialoguesTagless, options)
         const content = translationResponse.data[0]
         const translations = translate.parseMultiple(content)
@@ -224,8 +222,6 @@ const REGEX_REPLACE_PRE_TRANSLATION = [
         
         const fixedTranslationsTagged = replaceKeyToTag(tagDict, fixedTranslations)
         const translationsReplaced = fixedTranslationsTagged.map(replacePostTranslation)
-
-        console.log(translationsReplaced[0])
 
         return translationsReplaced
     }
@@ -284,7 +280,6 @@ const REGEX_REPLACE_PRE_TRANSLATION = [
         REGEX_REPLACE_POST_TRANSLATION.map(reg => {
             tmp = tmp.replace(new RegExp(reg.old, 'g'), reg.neww)
         })
-        console.log(tmp)
         return tmp        
     }
 
@@ -314,7 +309,6 @@ const REGEX_REPLACE_PRE_TRANSLATION = [
             const tmp = CHAR_TMP.repeat(size - index)
             return { tag, tmp}
         })
-        console.log(dict)
         return dict
     }
 

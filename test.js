@@ -36,7 +36,6 @@ const getTagsDict = (dialogues) => {
         const tmp = CHAR_TMP.repeat(size - index)
         return { tag, tmp}
     })
-    console.log(dict)
     return dict
 }
 
