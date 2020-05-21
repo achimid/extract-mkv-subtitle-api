@@ -20,4 +20,6 @@ app.use('/api/v1/extract', require('./extract/extract-controller'))
 databaseInit()
 registerSocketEvents(io)
 
+console.log('Redis URL >>>>>>>>>>>>>>', process.env.REDIS_URL)
+
 server.listen(process.env.PORT)
