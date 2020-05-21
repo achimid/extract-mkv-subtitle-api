@@ -55,7 +55,7 @@ const saveOrGetExtraction = async (data) => {
 
     if (!extraction.isCached) {
         if (!extraction.id) extraction = new Extraction(extraction)
-        extraction.save()
+        await extraction.save()
 
         // Adicionando execução na fila de Job, para processamento paralelo controlado
         executionJobs
