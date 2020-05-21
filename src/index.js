@@ -20,4 +20,13 @@ app.use('/api/v1/extract', require('./extract/extract-controller'))
 databaseInit()
 registerSocketEvents(io)
 
+const os = require('os');
+
+setTimeout(() => {
+    console.log('>>>>>>>>>>>>>>> CPUS: ', os.cpus());
+    console.log('>>>>>>>>>>>>>>> Memória Total: ', os.totalmem());
+    console.log('>>>>>>>>>>>>>>> Memória Livre: ', os.freemem())
+}, 1000)
+
+
 server.listen(process.env.PORT)

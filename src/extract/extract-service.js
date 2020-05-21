@@ -57,6 +57,8 @@ const saveOrGetExtraction = async (data) => {
         if (!extraction.id) extraction = new Extraction(extraction)
         await extraction.save()
 
+        console.info('Adicionando nova extração a fila')
+
         // Adicionando execução na fila de Job, para processamento paralelo controlado
         executionJobs
             .create(EXTRACT_EVENT, {extractionId: extraction.id})
