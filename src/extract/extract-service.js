@@ -4,7 +4,7 @@ const torrent = require('./torrent')
 const kue = require('kue')
 const { notifySocket } = require('../socket/socket-events')
 
-const executionJobs = kue.createQueue({ redis: process.env.REDIS_CONNECTION})
+const executionJobs = kue.createQueue({ redis: process.env.REDIS_URL})
 const EXTRACT_EVENT = 'extract'
 
 // Executando JOB de extraction
