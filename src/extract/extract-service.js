@@ -61,7 +61,6 @@ const saveOrGetExtraction = async (data) => {
         executionJobs
             .create(EXTRACT_EVENT, {extractionId: extraction.id})
             .removeOnComplete(true)
-            .attempts(5)
             .save()
     }
 
