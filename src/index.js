@@ -20,12 +20,9 @@ app.use('/api/v1/extract', require('./extract/extract-controller'))
 databaseInit()
 registerSocketEvents(io)
 
-const os = require('os');
-
-setTimeout(() => {
-    console.log('>>>>>>>>>>>>>>> CPUS: ', os.cpus());
-    console.log('>>>>>>>>>>>>>>> Memória Total: ', os.totalmem());
-    console.log('>>>>>>>>>>>>>>> Memória Livre: ', os.freemem())
+setInterval(() => {    
+    console.log('>>>>>>>>>>>>>>> Memória Heap: ', process.memoryUsage().heapUsed / 1024 / 1024)
+    console.log('>>>>>>>>>>>>>>> Memória Total: ', process.memoryUsage().heapTotal / 1024 / 1024)
 }, 1000)
 
 
