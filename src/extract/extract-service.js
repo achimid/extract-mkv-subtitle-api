@@ -54,7 +54,7 @@ const saveOrGetExtraction = async (data) => {
     let extraction = await findExtraction(data)
 
     if (!extraction.isCached) {
-        if (!extraction.id) extraction = new Extraction(extraction)
+        if (!extraction.id) extraction = Extraction.get(extraction)
         await extraction.save()
 
         console.info('Adicionando nova extração a fila')

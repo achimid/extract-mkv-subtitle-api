@@ -10,7 +10,7 @@ const saveTranslations = async (data) => {
     const translations = data.extraction.subtitles.map(sub => 
         sub.translations.map(translation => 
             translation.dialoguesMap.map(dialogue => 
-                new Translation(Object.assign(dialogue.toObject(), {from: langFrom || 'en'}))
+                Translation.get(Object.assign(dialogue.toObject(), {from: langFrom || 'en'}))
             )
         )
         

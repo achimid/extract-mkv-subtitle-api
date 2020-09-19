@@ -1,7 +1,7 @@
 require('dotenv').config()
-const express = require('express')
+
 const cors = require('cors')
-const databaseInit = require('./config/database')
+const express = require('express')
 const { registerSocketEvents } = require('./socket/socket-events')
 
 const app = express()
@@ -17,7 +17,6 @@ app.disable('x-powered-by')
 app.use('/api/v1/healthcheck', require('./healthcheck/healthcheck'))
 app.use('/api/v1/extract', require('./extract/extract-controller'))
 
-databaseInit()
 registerSocketEvents(io)
 
 server.listen(process.env.PORT)

@@ -36,7 +36,8 @@ const aplyRegexPostTranslation = (dialogue) => {
     }
     REGEX_REPLACE_POST_TRANSLATION.map(reg => { tmp = tmp.replace(new RegExp(reg.old, 'gi'), reg.neww) })
     
-    
+    if (tmp.startsWith('...')) tmp = tmp.replace('... ', '...')
+
     return tmp.trim()
 }
 

@@ -1,4 +1,5 @@
-const mongoose = require("mongoose")
+const config = require('../config/database-config')
+const mongoose = require('../config/mongoose-multi-db')
 
 const schema = mongoose.Schema({
     magnetLink: { 
@@ -28,6 +29,5 @@ const schema = mongoose.Schema({
     isCached: { type: Boolean },
 }, { versionKey: false, timestamps: true})
 
-const Extraction = mongoose.model("extractions", schema)
-
+const Extraction = mongoose.model('extractions', schema, config)
 module.exports = Extraction

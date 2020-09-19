@@ -1,4 +1,5 @@
-const mongoose = require("mongoose")
+const config = require('../config/database-config')
+const mongoose = require('../config/mongoose-multi-db')
 
 const schema = mongoose.Schema({
     from: { 
@@ -21,6 +22,5 @@ const schema = mongoose.Schema({
 
 schema.index({ from: 1, to: 1, original: 1, translated: 1 }, { unique: true, background: true, dropDups: true });
 
-const Translation = mongoose.model("translations", schema)
-
+const Translation = mongoose.model('translations', schema, config)
 module.exports = Translation

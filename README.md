@@ -334,6 +334,4 @@ Como uma melhor extratégia de utilização do serviço, de preferência a utili
 * Criar uma API que recebe um arquivo de legenda e revolve outro arquivo traduzido, como o MKVExtractor realiza, mas criar uma api para externalizar isso
 * Postar no openSubtitle automaticamente
 
-Criar a API de Multiplos acessos ao banco de dados, nos inserts, pode utilizar o Promise.Race, ja no Find, utilizar o Promisse.All (ou até mesmo a nova versão do promise.all)
-
-* Implementar correções de legenda de uma maneira hierarquica, porque as correções dependen da linguagem, usa uma factory...
+* Criar a API de Multiplos acessos ao banco de dados, nos inserts, pode utilizar o Promise.Race, ja no Find, utilizar o Promisse.All (ou até mesmo a nova versão do promise.all)
