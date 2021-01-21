@@ -28,7 +28,7 @@
     "mv": "^2.1.1",
     "node-cron": "^2.0.3",
     "node-fetch": "^2.6.1",
-    "socket.io": "^2.3.0",
+    "socket.io": "^2.4.0",
     "socket.io-client": "^2.3.0",
     "unescape": "^1.0.1",
     "webtorrent": "^0.107.17",
